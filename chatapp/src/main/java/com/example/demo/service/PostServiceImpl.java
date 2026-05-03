@@ -62,9 +62,11 @@ public class PostServiceImpl implements PostService{
 	}
 
 	@Override
-	public PostEntity createPost(PostEntity post) {
-		UserEntity user=userRepo.findByUserId(post.getUser());
+	public PostEntity createPost(PostEntity post,String email) {
+		
+		UserEntity user=userRepo.findByUserEmail(email);
 		post.setUserName(user.getUserName());
+		post.setUser(user.getUserId());
 		user.getPosts().add(post);
 		
 		return postRepo.save(post);
@@ -120,26 +122,20 @@ public class PostServiceImpl implements PostService{
 				mixedSet.add(trending.get(tIndex++));
 			}
 		}
+	
 		
 		
 		List<PostEntity> result = new ArrayList<>(mixedSet);
-		markLikedPosts(result, userId);
+		
 		return result;
 	}
 
-	private void markLikedPosts(List<PostEntity> posts, int userId) {
-		for (PostEntity post : posts) {
-			if (post.getLikes() != null) {
-				boolean liked = post.getLikes().stream().anyMatch(l -> l.getUserId() == userId);
-				post.setLikedByUser(liked);
-			}
-		}
-	}
+	
 
 	public List<PostEntity> search(String keyword, String email) {
 		int userId = userRepo.findByUserEmail(email).getUserId();
 		List<PostEntity> results = postRepo.findByTitleContainingIgnoreCaseOrUserNameContainingIgnoreCase(keyword, keyword);
-		markLikedPosts(results, userId);
+		
 		return results;
 	}
 
@@ -156,6 +152,14 @@ public class PostServiceImpl implements PostService{
 	public List<PostEntity> likePosts(String email) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public List<PostEntity> savedPosts(String username) {
+		UserEntity user=userRepo.findByUserEmail(username);
+		List<PostEntity> save=user.getSaved();
+		
+		return save;
 	}
 
 }

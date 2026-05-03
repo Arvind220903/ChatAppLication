@@ -12,14 +12,14 @@ import jakarta.persistence.Table;
 public class Likes {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long likeId;
+	private Integer likeId;
 	
 	private Integer userId;
 	private Integer postId;
-	public Long getLikeId() {
+	public Integer getLikeId() {
 		return likeId;
 	}
-	public void setLikeId(Long likeId) {
+	public void setLikeId(Integer likeId) {
 		this.likeId = likeId;
 	}
 	public Integer getUserId() {

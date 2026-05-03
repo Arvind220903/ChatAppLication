@@ -2,6 +2,8 @@ package com.example.demo.config;
 
 import java.util.List;
 
+import org.springframework.http.HttpMethod;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +39,7 @@ public class SecurityConfig {
 				.csrf(customizer -> customizer.disable())
 				.cors(customizer -> customizer.configurationSource(corsSource()))
 				.authorizeHttpRequests(request -> request
+						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						.requestMatchers("/user/register", "/user/login").permitAll()
 						.anyRequest().authenticated())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -47,7 +50,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(List.of("http://localhost:4201"));
+		config.setAllowedOrigins(List.of("http://localhost:4201", "http://localhost:4200"));
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowCredentials(true);

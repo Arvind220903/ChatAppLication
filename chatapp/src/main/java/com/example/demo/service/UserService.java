@@ -15,4 +15,5 @@ public interface UserService {
 	public List<UserEntity> getFollowing(String email);
 	public String follow(int follow,int followr);
 	public List<String> search(String username);
+	public UserEntity getProfileByUserName(String username);
 }

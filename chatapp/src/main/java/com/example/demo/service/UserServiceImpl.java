@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public String register(UserEntity user) {
 		if(userRepo.findByUserEmail(user.getUserEmail())!=null )return "Email Already exists";
-		
+		if(userRepo.findByUserName(user.getUserName())!=null)return "username already taken";
 		user.setPassword(encode.encode(user.getPassword()));
 		userRepo.save(user);
 		return "Success";
@@ -97,6 +97,12 @@ public class UserServiceImpl implements UserService{
 	public List<String> search(String username) {
 			List<String> l1=userRepo.getAllusername(username);
 		return l1;
+	}
+
+	@Override
+	public UserEntity getProfileByUserName(String username) {
+		UserEntity user=userRepo.findByUserName(username);
+		return user;
 	}
 
 }

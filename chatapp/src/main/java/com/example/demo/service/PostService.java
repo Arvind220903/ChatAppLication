@@ -12,7 +12,7 @@ public interface PostService {
 	public List<PostEntity> trending();
 	public List<PostEntity> region(int postid,double lati,double longi);
 	public List<PostEntity> postByUser(int userId);
-	public PostEntity createPost(PostEntity post);
+	
 	public String deletePost(int postid,int userId);
 	public PostEntity editTitle(int postId,int userId,String title);
 	public List<PostEntity> legacy();
@@ -20,4 +20,6 @@ public interface PostService {
 	public boolean saved(int postId,String email);
 	public List<PostEntity> likePosts(String email);
 	public List<PostEntity> search(String keyword, String email);
+	public List<PostEntity> savedPosts(String username);
+	public PostEntity createPost(PostEntity post, String username);
 }

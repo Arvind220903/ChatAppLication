@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +22,6 @@ import com.example.demo.entity.UserEntity;
 import com.example.demo.jwt.JwtService;
 import com.example.demo.service.UserService;
 
-@CrossOrigin(origins = "http://localhost:4201")
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -42,6 +40,7 @@ public class UserController {
 
 	@PostMapping("/register")
 	public ResponseEntity<String> register(@RequestBody UserEntity userEntity) {
+		System.out.println("DEBUG REGISTER: email=" + userEntity.getUserEmail() + ", password=" + userEntity.getPassword());
 		String s = userService.register(userEntity);
 		if (s.equals("Success")) return ResponseEntity.status(HttpStatus.CREATED).body(s);
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(s);
@@ -49,6 +48,7 @@ public class UserController {
 
 	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestBody UserEntity user) {
+		System.out.println("DEBUG LOGIN: email=" + user.getUserEmail() + ", password=" + user.getPassword());
 		try {
 			Authentication authentication = auth.authenticate(
 					new UsernamePasswordAuthenticationToken(
@@ -57,6 +57,8 @@ public class UserController {
 				return ResponseEntity.ok(jwt.generateKey(user.getUserEmail()));
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
 		} catch (Exception e) {
+			System.out.println("DEBUG LOGIN EXCEPTION: ");
+			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
 		}
 	}
@@ -86,8 +88,12 @@ public class UserController {
 		if (s.equals("Fail")) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to Follow");
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body("Successfully Followed");
 	}
-	@GetMapping("/search/{username}")
+	@GetMapping("/searchuser/{username}")
 	public List<String> search(@PathVariable("username") String username){
 		return userService.search(username);
+	}
+	@GetMapping("/getprofilebyusername/{username}")
+	public UserEntity getbyusername(@PathVariable String username) {
+		return userService.getProfileByUserName(username);
 	}
 }
