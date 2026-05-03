@@ -24,7 +24,7 @@ public class PostEntity {
 	private Integer postId;
 	private String title;
 	@OneToMany(
-		    mappedBy = "userId",
+		    mappedBy = "postId",
 		    cascade = CascadeType.ALL,
 		    orphanRemoval = true
 		)
@@ -42,6 +42,8 @@ public class PostEntity {
 	
 	@Transient
 	private boolean isLikedByUser;
+	@Transient
+	private boolean isSaveByuser=false;
 	
 	public boolean getisLikedByUser() {
 		return isLikedByUser;
@@ -108,6 +110,15 @@ public class PostEntity {
 	}
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+	public boolean isSaveByuser() {
+		return isSaveByuser;
+	}
+	public void setSaveByuser(boolean isSaveByuser) {
+		this.isSaveByuser = isSaveByuser;
+	}
+	public boolean isLikedByUser() {
+		return isLikedByUser;
 	}
 	
 	

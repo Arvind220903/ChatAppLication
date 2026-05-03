@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.demo.entity.NotificationEntity;
 import com.example.demo.entity.UserEntity;
 
 @Service
@@ -13,7 +14,8 @@ public interface UserService {
 	public UserEntity editprofile(UserEntity user);
 	public List<UserEntity> getFollowers(String email);
 	public List<UserEntity> getFollowing(String email);
-	public String follow(int follow,int followr);
+	public String follow(String email,int followr);
 	public List<String> search(String username);
 	public UserEntity getProfileByUserName(String username);
+	public List<NotificationEntity> notification(String email);
 }

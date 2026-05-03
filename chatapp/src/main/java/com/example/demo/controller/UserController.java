@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.entity.NotificationEntity;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.jwt.JwtService;
 import com.example.demo.service.UserService;
@@ -33,8 +34,8 @@ public class UserController {
 	private AuthenticationManager auth;
 
 	@GetMapping("/getprofile")
-	public ResponseEntity<UserEntity> getProfile(@RequestHeader String token) {
-		String email = jwt.extractUsername(token);
+	public ResponseEntity<UserEntity> getProfile(@RequestHeader("Authorization") String token) {
+		String email = jwt.extractUsername(token.substring(7));
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body(userService.getProfile(email));
 	}
 
@@ -71,20 +72,20 @@ public class UserController {
 	}
 
 	@GetMapping("/followers")
-	public ResponseEntity<List<UserEntity>> getFollower(@RequestHeader String token) {
-		String email = jwt.extractUsername(token);
+	public ResponseEntity<List<UserEntity>> getFollower(@RequestHeader("Authorization") String token) {
+		String email = jwt.extractUsername(token.substring(7));
 		return ResponseEntity.status(HttpStatus.OK).body(userService.getFollowers(email));
 	}
 
 	@GetMapping("/followings")
-	public ResponseEntity<List<UserEntity>> getFollowing(@RequestHeader String token) {
-		String email = jwt.extractUsername(token);
+	public ResponseEntity<List<UserEntity>> getFollowing(@RequestHeader("Authorization") String token) {
+		String email = jwt.extractUsername(token.substring(7));
 		return ResponseEntity.status(HttpStatus.OK).body(userService.getFollowing(email));
 	}
-
+	
 	@PostMapping("/follow")
-	public ResponseEntity<String> follow(@RequestParam int followee, @RequestParam int Follower) {
-		String s = userService.follow(followee, Follower);
+	public ResponseEntity<String> follow(@RequestHeader("Autherization") String token, @RequestParam int Follower) {
+		String s = userService.follow(jwt.extractUsername(token.substring(7)), Follower);
 		if (s.equals("Fail")) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to Follow");
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body("Successfully Followed");
 	}
@@ -96,4 +97,11 @@ public class UserController {
 	public UserEntity getbyusername(@PathVariable String username) {
 		return userService.getProfileByUserName(username);
 	}
+	@GetMapping("/notifications")
+	public List<NotificationEntity> getnotify(@RequestHeader("Authorization") String token){
+		String username=jwt.extractUsername(token.substring(7));
+		return userService.notification(username);
+	}
+	
+	
 }

@@ -51,7 +51,8 @@ public class UserEntity {
 		    orphanRemoval = true
 		)
 		private List<Likes> likes;
-	
+	@OneToMany(mappedBy="userId",cascade=CascadeType.ALL,orphanRemoval = true)
+	private List<NotificationEntity> notifications;
 	@ManyToMany
 	private List<PostEntity> saved;
 	
@@ -132,6 +133,12 @@ public class UserEntity {
 	}
 	public void setSaved(List<PostEntity> saved) {
 		this.saved = saved;
+	}
+	public List<NotificationEntity> getNotifications() {
+		return notifications;
+	}
+	public void setNotifications(List<NotificationEntity> notifications) {
+		this.notifications = notifications;
 	}
 	
 	

@@ -20,6 +20,7 @@ public class CommentEntity {
 	
 	private Integer postId;
 	private Integer userId;
+	private String username;
 	@UpdateTimestamp
 	private Date edited;
 	public Integer getCommentId() {
@@ -51,6 +52,12 @@ public class CommentEntity {
 	}
 	public void setEdited(Date edited) {
 		this.edited = edited;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
 	}
 	
 	

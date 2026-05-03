@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.CommentEntity;
+import com.example.demo.entity.PostEntity;
 
 @Service
 public interface CommentService {
@@ -12,4 +13,5 @@ public interface CommentService {
 	public String editComment(int commentId,int userid,String comment);
 	public String deleteComment(int commentId,int userid);
 	
+	public List<PostEntity> getPostsByComments(String username);
 }

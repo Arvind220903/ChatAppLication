@@ -17,7 +17,7 @@ public interface PostService {
 	public PostEntity editTitle(int postId,int userId,String title);
 	public List<PostEntity> legacy();
 	public List<PostEntity> feed(String email);
-	public boolean saved(int postId,String email);
+	public String saved(int postId,String email);
 	public List<PostEntity> likePosts(String email);
 	public List<PostEntity> search(String keyword, String email);
 	public List<PostEntity> savedPosts(String username);

@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.entity.Likes;
+import com.example.demo.entity.NotificationEntity;
 import com.example.demo.entity.PostEntity;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.repository.LikesRepo;
+import com.example.demo.repository.NotificationRepo;
 import com.example.demo.repository.PostRepo;
 import com.example.demo.repository.UserRepo;
 
@@ -22,7 +24,8 @@ public class LikesServiceImpl implements LikesService {
 	private PostRepo postRepo;
 	@Autowired
 	private UserRepo userRepo;
-
+	@Autowired
+	private NotificationRepo notificationRepo;
 	@Override
 	@Transactional
 	public String likePost(String email, int postId) {
@@ -37,6 +40,10 @@ public class LikesServiceImpl implements LikesService {
 			like.setUserId(user.getUserId());
 			like.setPostId(postId);
 			likesRepo.save(like);
+			NotificationEntity note=new NotificationEntity();
+			note.setTitle(user.getUserName()+" Liked your Post");
+			note.setUserId(post.getUser());
+			notificationRepo.save(note);
 			
 			return "liked";
 		} else {

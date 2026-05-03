@@ -58,7 +58,7 @@ public class PostController {
 		
 	}
 	@PostMapping("/saved/{postid}")
-	public boolean saved( @PathVariable("postid") int postid,@RequestHeader("Authorization") String token) {
+	public String saved( @PathVariable("postid") int postid,@RequestHeader("Authorization") String token) {
 		String username=jwt.extractUsername(token.substring(7));
 		return postService.saved(postid, username);
 		
