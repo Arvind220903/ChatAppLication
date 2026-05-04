@@ -25,7 +25,11 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public UserEntity getProfile(String email) {
 		
-		return userRepo.findByUserEmail(email);
+		UserEntity user= userRepo.findByUserEmail(email);
+		user.setPostCount(user.getPosts().size());
+		user.setFollowerCount(user.getFollower().size());
+		user.setFollowingCount(user.getFollowing().size());
+		return user;
 	}
 
 	@Override
@@ -111,6 +115,9 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public UserEntity getProfileByUserName(String username) {
 		UserEntity user=userRepo.findByUserName(username);
+		user.setPostCount(user.getPosts().size());
+		user.setFollowerCount(user.getFollower().size());
+		user.setFollowingCount(user.getFollowing().size());
 		return user;
 	}
 

@@ -56,6 +56,10 @@ public class UserEntity {
 	@ManyToMany
 	private List<PostEntity> saved;
 	
+	private Integer postCount;
+	private Integer followerCount;
+	private Integer followingCount;
+	
 	public Integer getUserId() {
 		return userId;
 	}
@@ -140,6 +144,25 @@ public class UserEntity {
 	public void setNotifications(List<NotificationEntity> notifications) {
 		this.notifications = notifications;
 	}
+	public Integer getPostCount() {
+		return postCount;
+	}
+	public void setPostCount(Integer postCount) {
+		this.postCount = postCount;
+	}
+	public Integer getFollowerCount() {
+		return followerCount;
+	}
+	public void setFollowerCount(Integer followerCount) {
+		this.followerCount = followerCount;
+	}
+	public Integer getFollowingCount() {
+		return followingCount;
+	}
+	public void setFollowingCount(Integer followingCount) {
+		this.followingCount = followingCount;
+	}
+	
 	
 	
 	

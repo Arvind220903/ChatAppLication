@@ -102,6 +102,7 @@ public class UserController {
 		String username=jwt.extractUsername(token.substring(7));
 		return userService.notification(username);
 	}
+
 	
 	
 }
