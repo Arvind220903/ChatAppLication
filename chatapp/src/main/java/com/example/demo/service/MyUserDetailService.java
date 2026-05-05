@@ -19,10 +19,13 @@ public class MyUserDetailService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		System.out.println("DEBUG loadUserByUsername: Fetching user for email: " + email);
 		UserEntity user = userRepo.findByUserEmail(email);
 		if (user == null) {
+			System.out.println("DEBUG loadUserByUsername: User not found for email: " + email);
 			throw new UsernameNotFoundException("User not found: " + email);
 		}
+		System.out.println("DEBUG loadUserByUsername: User found: " + user.getUserEmail() + ", Password encoded length: " + (user.getPassword() != null ? user.getPassword().length() : "null"));
 		return new User(user.getUserEmail(), user.getPassword(), Collections.emptyList());
 	}
 }

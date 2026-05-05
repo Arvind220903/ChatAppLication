@@ -5,6 +5,10 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,9 +16,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.ElementCollection;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name="Users")
@@ -24,7 +25,7 @@ public class UserEntity {
 	private Integer userId;
 	private String userName;
 	private String userEmail;
-	@JsonIgnore
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 	private String userbio;
 	private String userProfile;
@@ -43,11 +44,21 @@ public class UserEntity {
 	@OneToMany
 	private List<CommentEntity> comment;
 	
-	@OneToMany
-	private List<Likes> likes;
 	
+	@OneToMany(
+		    mappedBy = "userId",
+		    cascade = CascadeType.ALL,
+		    orphanRemoval = true
+		)
+		private List<Likes> likes;
+	@OneToMany(mappedBy="userId",cascade=CascadeType.ALL,orphanRemoval = true)
+	private List<NotificationEntity> notifications;
 	@ManyToMany
 	private List<PostEntity> saved;
+	
+	private Integer postCount;
+	private Integer followerCount;
+	private Integer followingCount;
 	
 	public Integer getUserId() {
 		return userId;
@@ -127,6 +138,31 @@ public class UserEntity {
 	public void setSaved(List<PostEntity> saved) {
 		this.saved = saved;
 	}
+	public List<NotificationEntity> getNotifications() {
+		return notifications;
+	}
+	public void setNotifications(List<NotificationEntity> notifications) {
+		this.notifications = notifications;
+	}
+	public Integer getPostCount() {
+		return postCount;
+	}
+	public void setPostCount(Integer postCount) {
+		this.postCount = postCount;
+	}
+	public Integer getFollowerCount() {
+		return followerCount;
+	}
+	public void setFollowerCount(Integer followerCount) {
+		this.followerCount = followerCount;
+	}
+	public Integer getFollowingCount() {
+		return followingCount;
+	}
+	public void setFollowingCount(Integer followingCount) {
+		this.followingCount = followingCount;
+	}
+	
 	
 	
 	

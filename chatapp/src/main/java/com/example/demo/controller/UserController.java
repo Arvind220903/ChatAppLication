@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,11 +18,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.entity.NotificationEntity;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.jwt.JwtService;
 import com.example.demo.service.UserService;
 
-@CrossOrigin(origins = "http://localhost:4201")
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -35,13 +34,14 @@ public class UserController {
 	private AuthenticationManager auth;
 
 	@GetMapping("/getprofile")
-	public ResponseEntity<UserEntity> getProfile(@RequestHeader String token) {
-		String email = jwt.extractUsername(token);
+	public ResponseEntity<UserEntity> getProfile(@RequestHeader("Authorization") String token) {
+		String email = jwt.extractUsername(token.substring(7));
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body(userService.getProfile(email));
 	}
 
 	@PostMapping("/register")
 	public ResponseEntity<String> register(@RequestBody UserEntity userEntity) {
+		System.out.println("DEBUG REGISTER: email=" + userEntity.getUserEmail() + ", password=" + userEntity.getPassword());
 		String s = userService.register(userEntity);
 		if (s.equals("Success")) return ResponseEntity.status(HttpStatus.CREATED).body(s);
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(s);
@@ -49,6 +49,7 @@ public class UserController {
 
 	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestBody UserEntity user) {
+		System.out.println("DEBUG LOGIN: email=" + user.getUserEmail() + ", password=" + user.getPassword());
 		try {
 			Authentication authentication = auth.authenticate(
 					new UsernamePasswordAuthenticationToken(
@@ -57,6 +58,8 @@ public class UserController {
 				return ResponseEntity.ok(jwt.generateKey(user.getUserEmail()));
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
 		} catch (Exception e) {
+			System.out.println("DEBUG LOGIN EXCEPTION: ");
+			e.printStackTrace();
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
 		}
 	}
@@ -69,25 +72,47 @@ public class UserController {
 	}
 
 	@GetMapping("/followers")
-	public ResponseEntity<List<UserEntity>> getFollower(@RequestHeader String token) {
-		String email = jwt.extractUsername(token);
+	public ResponseEntity<List<UserEntity>> getFollower(@RequestHeader("Authorization") String token) {
+		String email = jwt.extractUsername(token.substring(7));
+		return ResponseEntity.status(HttpStatus.OK).body(userService.getFollowers(email));
+	}
+
+	@GetMapping("/followers/{email}")
+	public ResponseEntity<List<UserEntity>> getFollowerByEmail(@PathVariable String email) {
 		return ResponseEntity.status(HttpStatus.OK).body(userService.getFollowers(email));
 	}
 
 	@GetMapping("/followings")
-	public ResponseEntity<List<UserEntity>> getFollowing(@RequestHeader String token) {
-		String email = jwt.extractUsername(token);
+	public ResponseEntity<List<UserEntity>> getFollowing(@RequestHeader("Authorization") String token) {
+		String email = jwt.extractUsername(token.substring(7));
 		return ResponseEntity.status(HttpStatus.OK).body(userService.getFollowing(email));
 	}
 
+	@GetMapping("/followings/{email}")
+	public ResponseEntity<List<UserEntity>> getFollowingByEmail(@PathVariable String email) {
+		return ResponseEntity.status(HttpStatus.OK).body(userService.getFollowing(email));
+	}
+	
 	@PostMapping("/follow")
-	public ResponseEntity<String> follow(@RequestParam int followee, @RequestParam int Follower) {
-		String s = userService.follow(followee, Follower);
+	public ResponseEntity<String> follow(@RequestHeader("Autherization") String token, @RequestParam int Follower) {
+		String s = userService.follow(jwt.extractUsername(token.substring(7)), Follower);
 		if (s.equals("Fail")) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to Follow");
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body("Successfully Followed");
 	}
-	@GetMapping("/search/{username}")
+	@GetMapping("/searchuser/{username}")
 	public List<String> search(@PathVariable("username") String username){
 		return userService.search(username);
 	}
+	@GetMapping("/getprofilebyusername/{username}")
+	public UserEntity getbyusername(@PathVariable String username) {
+		return userService.getProfileByUserName(username);
+	}
+	@GetMapping("/notifications")
+	public List<NotificationEntity> getnotify(@RequestHeader("Authorization") String token){
+		String username=jwt.extractUsername(token.substring(7));
+		return userService.notification(username);
+	}
+
+	
+	
 }
