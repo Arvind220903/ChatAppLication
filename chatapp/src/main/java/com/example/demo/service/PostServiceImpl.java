@@ -45,7 +45,14 @@ public class PostServiceImpl implements PostService{
 		Date tenDaysAgo = Date.from(tenDaysAgoInstant);
 		
 		Pageable topFifteen = PageRequest.of(0, 50);
-		return postRepo.findByCreatedAtAfterOrderByLikeCountDesc(tenDaysAgo, topFifteen);
+		List<PostEntity> posts = postRepo.findByCreatedAtAfterOrderByLikeCountDesc(tenDaysAgo, topFifteen);
+		posts.forEach(p -> {
+			if (p.getUserName() == null) {
+				UserEntity u = userRepo.findByUserId(p.getUser());
+				if (u != null) p.setUserName(u.getUserName());
+			}
+		});
+		return posts;
 	}
 
 	@Override
@@ -66,6 +73,7 @@ public class PostServiceImpl implements PostService{
 	public PostEntity createPost(PostEntity post,String email) {
 		
 		UserEntity user=userRepo.findByUserEmail(email);
+		
 		post.setUserName(user.getUserName());
 		post.setUser(user.getUserId());
 		user.getPosts().add(post);
@@ -77,6 +85,11 @@ public class PostServiceImpl implements PostService{
 	public String deletePost(int postid, int userId) {
 		PostEntity post=postRepo.findByPostId(postid);
 		if(post != null && post.getUser().equals(userId)) {
+			UserEntity user=userRepo.findByUserId(userId);
+			List<PostEntity> posts=user.getPosts();
+			posts.remove(post);
+			user.setPosts(posts);
+			userRepo.save(user);
 			postRepo.delete(post);
 			return "deleted";
 		}
@@ -127,6 +140,12 @@ public class PostServiceImpl implements PostService{
 		
 		
 		List<PostEntity> result = new ArrayList<>(mixedSet);
+		result.forEach(p -> {
+			if (p.getUserName() == null) {
+				UserEntity u = userRepo.findByUserId(p.getUser());
+				if (u != null) p.setUserName(u.getUserName());
+			}
+		});
 		Collections.sort(result, (a, b) -> {
 		    if (a.getLikeCount() != b.getLikeCount()) {
 		        return Integer.compare(b.getLikeCount(), a.getLikeCount());
@@ -142,7 +161,12 @@ public class PostServiceImpl implements PostService{
 	public List<PostEntity> search(String keyword, String email) {
 		int userId = userRepo.findByUserEmail(email).getUserId();
 		List<PostEntity> results = postRepo.findByTitleContainingIgnoreCaseOrUserNameContainingIgnoreCase(keyword, keyword);
-		
+		results.forEach(p -> {
+			if (p.getUserName() == null) {
+				UserEntity u = userRepo.findByUserId(p.getUser());
+				if (u != null) p.setUserName(u.getUserName());
+			}
+		});
 		return results;
 	}
 

@@ -10,8 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -44,6 +43,8 @@ public class PostEntity {
 	private boolean isLikedByUser;
 	@Transient
 	private boolean isSaveByuser=false;
+	@ManyToMany
+	private List<TagsEntity> tags;
 	
 	public boolean getisLikedByUser() {
 		return isLikedByUser;
@@ -119,6 +120,12 @@ public class PostEntity {
 	}
 	public boolean isLikedByUser() {
 		return isLikedByUser;
+	}
+	public List<TagsEntity> getTags() {
+		return tags;
+	}
+	public void setTags(List<TagsEntity> tags) {
+		this.tags = tags;
 	}
 	
 	

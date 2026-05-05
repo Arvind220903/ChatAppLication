@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,5 +44,12 @@ public class CommentController {
 	public List<PostEntity> getPostsByComments(@RequestHeader("Authorization") String token){
 		String username=jwt.extractUsername(token.substring(7));
 		return commentService.getPostsByComments(username);
+	}
+	@GetMapping("/getcommentedpostotheruser/{email}")
+	public List<PostEntity> getPostOfOtherUser(@PathVariable String email){
+		System.out.println();
+		System.out.println();
+		System.out.println("other user emaol-"+email);
+		return commentService.getPostsByComments(email);
 	}
 }

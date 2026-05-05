@@ -77,9 +77,19 @@ public class UserController {
 		return ResponseEntity.status(HttpStatus.OK).body(userService.getFollowers(email));
 	}
 
+	@GetMapping("/followers/{email}")
+	public ResponseEntity<List<UserEntity>> getFollowerByEmail(@PathVariable String email) {
+		return ResponseEntity.status(HttpStatus.OK).body(userService.getFollowers(email));
+	}
+
 	@GetMapping("/followings")
 	public ResponseEntity<List<UserEntity>> getFollowing(@RequestHeader("Authorization") String token) {
 		String email = jwt.extractUsername(token.substring(7));
+		return ResponseEntity.status(HttpStatus.OK).body(userService.getFollowing(email));
+	}
+
+	@GetMapping("/followings/{email}")
+	public ResponseEntity<List<UserEntity>> getFollowingByEmail(@PathVariable String email) {
 		return ResponseEntity.status(HttpStatus.OK).body(userService.getFollowing(email));
 	}
 	
