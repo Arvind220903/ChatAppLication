@@ -5,12 +5,12 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -22,9 +22,12 @@ public class PostEntity {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Integer postId;
 	private String title;
-	@OneToMany
-	@JoinColumn(name="postId", referencedColumnName="postId", insertable=false, updatable=false)
-	private List<Likes> likes;
+	@OneToMany(
+		    mappedBy = "postId",
+		    cascade = CascadeType.ALL,
+		    orphanRemoval = true
+		)
+		private List<Likes> likes;
 	@OneToMany
 	private List<CommentEntity> comments;
 	
@@ -38,8 +41,12 @@ public class PostEntity {
 	
 	@Transient
 	private boolean isLikedByUser;
+	@Transient
+	private boolean isSaveByuser=false;
+	@ManyToMany
+	private List<TagsEntity> tags;
 	
-	public boolean isLikedByUser() {
+	public boolean getisLikedByUser() {
 		return isLikedByUser;
 	}
 	public void setLikedByUser(boolean isLikedByUser) {
@@ -104,6 +111,21 @@ public class PostEntity {
 	}
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+	public boolean isSaveByuser() {
+		return isSaveByuser;
+	}
+	public void setSaveByuser(boolean isSaveByuser) {
+		this.isSaveByuser = isSaveByuser;
+	}
+	public boolean isLikedByUser() {
+		return isLikedByUser;
+	}
+	public List<TagsEntity> getTags() {
+		return tags;
+	}
+	public void setTags(List<TagsEntity> tags) {
+		this.tags = tags;
 	}
 	
 	

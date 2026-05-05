@@ -3,6 +3,7 @@ package com.example.demo.service;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.time.Instant;
@@ -43,8 +44,15 @@ public class PostServiceImpl implements PostService{
 		Instant tenDaysAgoInstant = Instant.now().minus(10, ChronoUnit.DAYS);
 		Date tenDaysAgo = Date.from(tenDaysAgoInstant);
 		
-		Pageable topFifteen = PageRequest.of(0, 15);
-		return postRepo.findByCreatedAtAfterOrderByLikeCountDesc(tenDaysAgo, topFifteen);
+		Pageable topFifteen = PageRequest.of(0, 50);
+		List<PostEntity> posts = postRepo.findByCreatedAtAfterOrderByLikeCountDesc(tenDaysAgo, topFifteen);
+		posts.forEach(p -> {
+			if (p.getUserName() == null) {
+				UserEntity u = userRepo.findByUserId(p.getUser());
+				if (u != null) p.setUserName(u.getUserName());
+			}
+		});
+		return posts;
 	}
 
 	@Override
@@ -62,9 +70,12 @@ public class PostServiceImpl implements PostService{
 	}
 
 	@Override
-	public PostEntity createPost(PostEntity post) {
-		UserEntity user=userRepo.findByUserId(post.getUser());
+	public PostEntity createPost(PostEntity post,String email) {
+		
+		UserEntity user=userRepo.findByUserEmail(email);
+		
 		post.setUserName(user.getUserName());
+		post.setUser(user.getUserId());
 		user.getPosts().add(post);
 		
 		return postRepo.save(post);
@@ -74,6 +85,11 @@ public class PostServiceImpl implements PostService{
 	public String deletePost(int postid, int userId) {
 		PostEntity post=postRepo.findByPostId(postid);
 		if(post != null && post.getUser().equals(userId)) {
+			UserEntity user=userRepo.findByUserId(userId);
+			List<PostEntity> posts=user.getPosts();
+			posts.remove(post);
+			user.setPosts(posts);
+			userRepo.save(user);
 			postRepo.delete(post);
 			return "deleted";
 		}
@@ -120,42 +136,71 @@ public class PostServiceImpl implements PostService{
 				mixedSet.add(trending.get(tIndex++));
 			}
 		}
+	
 		
 		
 		List<PostEntity> result = new ArrayList<>(mixedSet);
-		markLikedPosts(result, userId);
+		result.forEach(p -> {
+			if (p.getUserName() == null) {
+				UserEntity u = userRepo.findByUserId(p.getUser());
+				if (u != null) p.setUserName(u.getUserName());
+			}
+		});
+		Collections.sort(result, (a, b) -> {
+		    if (a.getLikeCount() != b.getLikeCount()) {
+		        return Integer.compare(b.getLikeCount(), a.getLikeCount());
+		    }
+		    return b.getCreatedAt().compareTo(a.getCreatedAt());
+		});
+		
 		return result;
 	}
 
-	private void markLikedPosts(List<PostEntity> posts, int userId) {
-		for (PostEntity post : posts) {
-			if (post.getLikes() != null) {
-				boolean liked = post.getLikes().stream().anyMatch(l -> l.getUserId() == userId);
-				post.setLikedByUser(liked);
-			}
-		}
-	}
+	
 
 	public List<PostEntity> search(String keyword, String email) {
 		int userId = userRepo.findByUserEmail(email).getUserId();
 		List<PostEntity> results = postRepo.findByTitleContainingIgnoreCaseOrUserNameContainingIgnoreCase(keyword, keyword);
-		markLikedPosts(results, userId);
+		results.forEach(p -> {
+			if (p.getUserName() == null) {
+				UserEntity u = userRepo.findByUserId(p.getUser());
+				if (u != null) p.setUserName(u.getUserName());
+			}
+		});
 		return results;
 	}
 
 	@Override
-	public boolean saved(int postId, String email) {
-			PostEntity post=postRepo.findByPostId(postId);
-			UserEntity user=userRepo.findByUserEmail(email);
-			user.getSaved().add(post);
-			return userRepo.save(user)!=null;
-		
+	public String saved(int postId, String email) {
+			PostEntity post = postRepo.findByPostId(postId);
+			UserEntity user = userRepo.findByUserEmail(email);
+			if (user.getSaved().size() > 0 && user.getSaved().contains(post)) {
+				user.getSaved().remove(post);
+				userRepo.save(user);
+				post.setSaveByuser(false);
+				postRepo.save(post);
+				return "unsaved";
+			} else {
+				user.getSaved().add(post);
+				userRepo.save(user);
+				post.setSaveByuser(true);
+				postRepo.save(post);
+				return "saved";
+			}
 	}
 
 	@Override
 	public List<PostEntity> likePosts(String email) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public List<PostEntity> savedPosts(String username) {
+		UserEntity user=userRepo.findByUserEmail(username);
+		List<PostEntity> save=user.getSaved();
+		
+		return save;
 	}
 
 }

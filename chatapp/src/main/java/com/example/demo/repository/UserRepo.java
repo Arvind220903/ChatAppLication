@@ -19,4 +19,6 @@ public interface UserRepo extends JpaRepository<UserEntity, Integer>{
 	@Query("select u.userName from UserEntity u where u.userName like concat('%', :keyword, '%')")
 	List<String> getAllusername(@Param("keyword") String keyword);
 
+	UserEntity findByUserName(String username);
+
 }

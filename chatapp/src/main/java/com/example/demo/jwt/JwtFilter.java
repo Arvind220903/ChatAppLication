@@ -37,8 +37,10 @@ public class JwtFilter extends OncePerRequestFilter {
 			try {
 				username = jwt.extractUsername(token);
 			} catch (Exception e) {
-				// Invalid token — continue without auth
+				System.out.println("DEBUG JWT FILTER: token extraction failed: " + e.getMessage());
 			}
+		} else {
+			System.out.println("DEBUG JWT FILTER: no/invalid Authorization header for " + request.getMethod() + " " + request.getRequestURI());
 		}
 
 		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -51,6 +53,8 @@ public class JwtFilter extends OncePerRequestFilter {
 					SecurityContextHolder.getContext().setAuthentication(authToken);
 				}
 			} catch (Exception e) {
+				System.out.println("DEBUG JWT FILTER EXCEPTION:");
+				e.printStackTrace();
 				SecurityContextHolder.clearContext();
 			}
 		}

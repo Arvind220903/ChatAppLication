@@ -3,7 +3,6 @@ package com.example.demo.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.demo.entity.PostEntity;
 import com.example.demo.jwt.JwtService;
 import com.example.demo.service.PostService;
-@CrossOrigin(origins = "http://localhost:4201")
 @RestController
 @RequestMapping("/posts")
 public class PostController {
@@ -40,8 +38,9 @@ public class PostController {
 		return postService.postByUser(userId);
 	}
 	@PostMapping("/createpost")
-	public PostEntity createPost(@RequestBody PostEntity post) {
-		return postService.createPost(post);
+	public PostEntity createPost(@RequestBody PostEntity post,@RequestHeader String token) {
+		String username=jwt.extractUsername(token);
+		return postService.createPost(post,username);
 	}
 	@PutMapping("/delete")
 	public String deletePost(@RequestParam int postid,@RequestParam int userId) {
@@ -53,14 +52,14 @@ public class PostController {
 	}
 	//public List<PostEntity> legacy();
 	@GetMapping("/feed")
-	public List<PostEntity> getFeed(@RequestHeader String header){
-		String email=jwt.extractUsername(header);
+	public List<PostEntity> getFeed(@RequestHeader("Authorization") String token){
+		String email=jwt.extractUsername(token.substring(7));
 		return postService.feed(email);
 		
 	}
 	@PostMapping("/saved/{postid}")
-	public boolean saved( @PathVariable("postid") int postid,@RequestHeader String token) {
-		String username=jwt.extractUsername(token);
+	public String saved( @PathVariable("postid") int postid,@RequestHeader("Authorization") String token) {
+		String username=jwt.extractUsername(token.substring(7));
 		return postService.saved(postid, username);
 		
 	}
@@ -70,4 +69,10 @@ public class PostController {
 		String username = jwt.extractUsername(token.substring(7));
 		return postService.search(query, username);
 	}
+	@GetMapping("/savedposts")
+	public List<PostEntity> savedPosts(@RequestHeader("Authorization") String token){
+		String username=jwt.extractUsername(token.substring(7));
+		return postService.savedPosts(username);
+	}
+	
 }
