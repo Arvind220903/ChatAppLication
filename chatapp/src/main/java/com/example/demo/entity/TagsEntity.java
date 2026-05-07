@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import java.util.List;
+import java.util.Queue;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,6 +20,8 @@ public class TagsEntity {
 	@ManyToMany
 	private List<PostEntity> posts;
 	private Integer postCount;
+	private Integer recentUse;
+	private Queue<PostEntity> recentPosts;
 	public Integer getTagId() {
 		return tagId;
 	}
@@ -42,6 +45,18 @@ public class TagsEntity {
 	}
 	public void setTags(String tags) {
 		this.tags = tags;
+	}
+	public Integer getRecentUse() {
+		return recentUse;
+	}
+	public void setRecentUse(Integer recentUse) {
+		this.recentUse = recentUse;
+	}
+	public Queue<PostEntity> getRecentPosts() {
+		return recentPosts;
+	}
+	public void setRecentPosts(Queue<PostEntity> recentPosts) {
+		this.recentPosts = recentPosts;
 	}
 	
 	
