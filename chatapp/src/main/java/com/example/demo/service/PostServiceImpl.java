@@ -1,23 +1,24 @@
 package com.example.demo.service;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.PostEntity;
+import com.example.demo.entity.TagsEntity;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.repository.PostRepo;
+import com.example.demo.repository.TagsRepo;
 import com.example.demo.repository.UserRepo;
 
 @Service
@@ -26,6 +27,9 @@ public class PostServiceImpl implements PostService{
 	private UserRepo userRepo;
 	@Autowired
 	private PostRepo postRepo;
+	@Autowired
+	
+	private TagsRepo tagsRepo;
 	
 	@Override
 	public List<PostEntity> getFollowing(int userId) {
@@ -73,7 +77,28 @@ public class PostServiceImpl implements PostService{
 	public PostEntity createPost(PostEntity post,String email) {
 		
 		UserEntity user=userRepo.findByUserEmail(email);
-		
+		for(String tag:post.getTags()) {
+			TagsEntity tags=tagsRepo.findByTags(tag);
+			if(tags==null) {
+				if (tags == null) {
+				    tags = new TagsEntity();
+				    tags.setTags(tag);
+				    tags.setRecentPosts(new LinkedList<>());
+				    tags.setPosts(new ArrayList<>()); // Initialize the list
+				    tags.setRecentUse(0);             // Initialize the counter
+				}
+
+			}
+			List<PostEntity> posts=tags.getPosts();
+			posts.add(post);
+			tags.setPosts(posts);
+			tags.setRecentUse(tags.getRecentUse()+1);
+			Queue<PostEntity> tag1=tags.getRecentPosts();
+			tag1.add(post);
+			tags.setRecentPosts(tag1);
+			
+			tagsRepo.save(tags);
+		}
 		post.setUserName(user.getUserName());
 		post.setUser(user.getUserId());
 		user.getPosts().add(post);

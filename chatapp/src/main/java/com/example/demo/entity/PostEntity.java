@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class PostEntity {
 	private double latitude;
 	private double longitude;
 	@CreationTimestamp
-	private Date createdAt;
+	private LocalDateTime createdAt;
 	private Integer likeCount = 0;
 	private String userName;
 	
@@ -43,8 +44,9 @@ public class PostEntity {
 	private boolean isLikedByUser;
 	@Transient
 	private boolean isSaveByuser=false;
-	@ManyToMany
-	private List<TagsEntity> tags;
+	
+	private List<String> tags;
+	
 	
 	public boolean getisLikedByUser() {
 		return isLikedByUser;
@@ -94,10 +96,10 @@ public class PostEntity {
 	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
-	public Date getCreatedAt() {
+	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
-	public void setCreatedAt(Date createdAt) {
+	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
 	public Integer getLikeCount() {
@@ -121,10 +123,10 @@ public class PostEntity {
 	public boolean isLikedByUser() {
 		return isLikedByUser;
 	}
-	public List<TagsEntity> getTags() {
+	public List<String> getTags() {
 		return tags;
 	}
-	public void setTags(List<TagsEntity> tags) {
+	public void setTags(List<String> tags) {
 		this.tags = tags;
 	}
 	

@@ -27,10 +27,10 @@ public class PostController {
 	public List<PostEntity> getFollowing(@PathVariable("userid") int userId){
 		return postService.getFollowing(userId);
 	}
-	@GetMapping("/trending")
-	public List<PostEntity> trending(){
-		return postService.trending();
-	}
+//	@GetMapping("/trending")
+//	public List<PostEntity> trending(){
+//		return postService.trending();
+//	}
 	
 	//public List<PostEntity> region(int postid,double lati,double longi);
 	@GetMapping("/postbyuser/{userid}")
