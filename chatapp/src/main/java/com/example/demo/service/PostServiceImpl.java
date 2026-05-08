@@ -80,9 +80,14 @@ public class PostServiceImpl implements PostService{
 		for(String tag:post.getTags()) {
 			TagsEntity tags=tagsRepo.findByTags(tag);
 			if(tags==null) {
-				tags=new TagsEntity();
-				tags.setTags(tag);
-				tags.setRecentPosts(new LinkedList<>());
+				if (tags == null) {
+				    tags = new TagsEntity();
+				    tags.setTags(tag);
+				    tags.setRecentPosts(new LinkedList<>());
+				    tags.setPosts(new ArrayList<>()); // Initialize the list
+				    tags.setRecentUse(0);             // Initialize the counter
+				}
+
 			}
 			List<PostEntity> posts=tags.getPosts();
 			posts.add(post);
