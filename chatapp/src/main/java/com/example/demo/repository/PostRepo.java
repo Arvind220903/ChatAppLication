@@ -1,5 +1,6 @@
 package com.example.demo.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -20,5 +21,5 @@ public interface PostRepo extends JpaRepository<PostEntity,Integer>{
 	
 	List<PostEntity> findByUserInOrderByPostIdDesc(List<Integer> userIds, Pageable pageable);
 	
-	List<PostEntity> findByCreatedAtAfterOrderByLikeCountDesc(java.util.Date date, Pageable pageable);
+	List<PostEntity> findByCreatedAtAfterOrderByLikeCountDesc(LocalDateTime tenDaysAgo, Pageable pageable);
 }

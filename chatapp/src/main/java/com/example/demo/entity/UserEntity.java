@@ -59,7 +59,10 @@ public class UserEntity {
 	private Integer postCount;
 	private Integer followerCount;
 	private Integer followingCount;
-	
+	@OneToMany
+	private List<MessageEntity> messages;
+	@ElementCollection
+	private List<UserEntity> chatWith;
 	public Integer getUserId() {
 		return userId;
 	}
@@ -162,7 +165,18 @@ public class UserEntity {
 	public void setFollowingCount(Integer followingCount) {
 		this.followingCount = followingCount;
 	}
-	
+	public List<MessageEntity> getMessages() {
+		return messages;
+	}
+	public void setMessages(List<MessageEntity> messages) {
+		this.messages = messages;
+	}
+	public List<UserEntity> getChatWith() {
+		return chatWith;
+	}
+	public void setChatWith(List<UserEntity> chatWith) {
+		this.chatWith = chatWith;
+	}
 	
 	
 	

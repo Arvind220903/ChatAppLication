@@ -27,10 +27,10 @@ public class PostController {
 	public List<PostEntity> getFollowing(@PathVariable("userid") int userId){
 		return postService.getFollowing(userId);
 	}
-//	@GetMapping("/trending")
-//	public List<PostEntity> trending(){
-//		return postService.trending();
-//	}
+	@GetMapping("/trending")
+	public List<PostEntity> trending(){
+		return postService.trending();
+	}
 	
 	//public List<PostEntity> region(int postid,double lati,double longi);
 	@GetMapping("/postbyuser/{userid}")
@@ -38,8 +38,8 @@ public class PostController {
 		return postService.postByUser(userId);
 	}
 	@PostMapping("/createpost")
-	public PostEntity createPost(@RequestBody PostEntity post,@RequestHeader String token) {
-		String username=jwt.extractUsername(token);
+	public PostEntity createPost(@RequestBody PostEntity post,@RequestHeader("Authorization") String token) {
+		String username=jwt.extractUsername(token.substring(7));
 		return postService.createPost(post,username);
 	}
 	@PutMapping("/delete")

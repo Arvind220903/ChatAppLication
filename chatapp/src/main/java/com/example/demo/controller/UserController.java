@@ -94,7 +94,7 @@ public class UserController {
 	}
 	
 	@PostMapping("/follow")
-	public ResponseEntity<String> follow(@RequestHeader("Autherization") String token, @RequestParam int Follower) {
+	public ResponseEntity<String> follow(@RequestHeader("Authorization") String token, @RequestParam int Follower) {
 		String s = userService.follow(jwt.extractUsername(token.substring(7)), Follower);
 		if (s.equals("Fail")) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to Follow");
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body("Successfully Followed");

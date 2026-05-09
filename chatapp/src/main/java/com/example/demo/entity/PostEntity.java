@@ -7,6 +7,7 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -44,7 +45,7 @@ public class PostEntity {
 	private boolean isLikedByUser;
 	@Transient
 	private boolean isSaveByuser=false;
-	
+	@ElementCollection
 	private List<String> tags;
 	
 	

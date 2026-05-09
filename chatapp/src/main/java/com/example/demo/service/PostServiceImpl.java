@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,8 +46,8 @@ public class PostServiceImpl implements PostService{
 	@Override
 	public List<PostEntity> trending() {
 		// Filter posts created within the last 10 days
-		Instant tenDaysAgoInstant = Instant.now().minus(10, ChronoUnit.DAYS);
-		Date tenDaysAgo = Date.from(tenDaysAgoInstant);
+		LocalDateTime tenDaysAgo = LocalDateTime.now().minusDays(10);
+
 		
 		Pageable topFifteen = PageRequest.of(0, 50);
 		List<PostEntity> posts = postRepo.findByCreatedAtAfterOrderByLikeCountDesc(tenDaysAgo, topFifteen);
@@ -75,35 +76,41 @@ public class PostServiceImpl implements PostService{
 
 	@Override
 	public PostEntity createPost(PostEntity post,String email) {
-		
 		UserEntity user=userRepo.findByUserEmail(email);
-		for(String tag:post.getTags()) {
-			TagsEntity tags=tagsRepo.findByTags(tag);
-			if(tags==null) {
-				if (tags == null) {
-				    tags = new TagsEntity();
-				    tags.setTags(tag);
-				    tags.setRecentPosts(new LinkedList<>());
-				    tags.setPosts(new ArrayList<>()); // Initialize the list
-				    tags.setRecentUse(0);             // Initialize the counter
-				}
-
-			}
-			List<PostEntity> posts=tags.getPosts();
-			posts.add(post);
-			tags.setPosts(posts);
-			tags.setRecentUse(tags.getRecentUse()+1);
-			Queue<PostEntity> tag1=tags.getRecentPosts();
-			tag1.add(post);
-			tags.setRecentPosts(tag1);
-			
-			tagsRepo.save(tags);
-		}
 		post.setUserName(user.getUserName());
 		post.setUser(user.getUserId());
-		user.getPosts().add(post);
 		
-		return postRepo.save(post);
+		// Save post first to get an ID and avoid TransientPropertyValueException
+		PostEntity savedPost = postRepo.save(post);
+		
+		if(savedPost.getTags() != null) {
+			for(String tag : savedPost.getTags()) {
+				TagsEntity tags = tagsRepo.findByTags(tag);
+				if(tags == null) {
+					tags = new TagsEntity();
+					tags.setTags(tag);
+					tags.setRecentPosts(new ArrayList<>());
+					tags.setPosts(new ArrayList<>()); 
+					tags.setRecentUse(0);             
+				}
+				
+				List<PostEntity> posts = tags.getPosts();
+				posts.add(savedPost);
+				tags.setPosts(posts);
+				tags.setRecentUse(tags.getRecentUse() + 1);
+				
+				List<PostEntity> recent = tags.getRecentPosts();
+				recent.add(savedPost);
+				tags.setRecentPosts(recent);
+				
+				tagsRepo.save(tags);
+			}
+		}
+		
+		user.getPosts().add(savedPost);
+		userRepo.save(user);
+		
+		return savedPost;
 	}
 
 	@Override

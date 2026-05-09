@@ -1,14 +1,15 @@
 package com.example.demo.entity;
 
 import java.util.List;
-import java.util.Queue;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+
 
 @Entity
 @Table(name="tags")
@@ -21,7 +22,8 @@ public class TagsEntity {
 	private List<PostEntity> posts;
 	private Integer postCount;
 	private Integer recentUse;
-	private Queue<PostEntity> recentPosts;
+	@OneToMany
+	private List<PostEntity> recentPosts;
 	public Integer getTagId() {
 		return tagId;
 	}
@@ -52,10 +54,10 @@ public class TagsEntity {
 	public void setRecentUse(Integer recentUse) {
 		this.recentUse = recentUse;
 	}
-	public Queue<PostEntity> getRecentPosts() {
+	public List<PostEntity> getRecentPosts() {
 		return recentPosts;
 	}
-	public void setRecentPosts(Queue<PostEntity> recentPosts) {
+	public void setRecentPosts(List<PostEntity> recentPosts) {
 		this.recentPosts = recentPosts;
 	}
 	
