@@ -41,6 +41,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(request -> request
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						.requestMatchers("/user/register", "/user/login").permitAll()
+						.requestMatchers("/messages/**").authenticated()
 						.anyRequest().authenticated())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.addFilterBefore(jwt, UsernamePasswordAuthenticationFilter.class)
@@ -50,9 +51,16 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsSource() {
 		CorsConfiguration config = new CorsConfiguration();
-		config.setAllowedOrigins(List.of("http://localhost:4201", "http://localhost:4200"));
+		// Include both localhost and 127.0.0.1 for both standard Angular ports
+		config.setAllowedOrigins(List.of(
+			"http://localhost:4200", 
+			"http://127.0.0.1:4200", 
+			"http://localhost:4201", 
+			"http://127.0.0.1:4201"
+		));
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-		config.setAllowedHeaders(List.of("*"));
+		// Explicitly list headers to ensure they aren't stripped
+		config.setAllowedHeaders(List.of("Authorization", "Autherization", "Content-Type", "token"));
 		config.setAllowCredentials(true);
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", config);
@@ -66,10 +74,10 @@ public class SecurityConfig {
 
 	@Bean
 	public AuthenticationProvider authProvider() {
-		DaoAuthenticationProvider daoAuth = new DaoAuthenticationProvider(myUd);
-		
-		daoAuth.setPasswordEncoder(bcrypt());
-		return daoAuth;
+		// In Spring Security 7.x, the constructor requires UserDetailsService
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(myUd);
+		provider.setPasswordEncoder(bcrypt());
+		return provider;
 	}
 
 	@Bean

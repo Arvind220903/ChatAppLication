@@ -40,10 +40,23 @@ public class LikesServiceImpl implements LikesService {
 			like.setUserId(user.getUserId());
 			like.setPostId(postId);
 			likesRepo.save(like);
-			NotificationEntity note=new NotificationEntity();
-			note.setTitle(user.getUserName()+" Liked your Post");
-			note.setUserId(post.getUser());
-			notificationRepo.save(note);
+			NotificationEntity notification=notificationRepo.findByTitleAndUserIdAndPostIdAndSender(
+					user.getUserName()+" Liked Your Post",post.getUser(),post.getPostId(),user.getUserId());
+			if(notification==null || (notification.getUserId()!=post.getUser() || notification.getPostId()!=post.getPostId())) {
+				notification=new NotificationEntity();
+			
+			notification.setTitle(user.getUserName()+" Liked Your Post");
+			notification.setUserId(post.getUser());
+			notification.setPostId(post.getPostId());
+			notification.setSender(user.getUserId());
+			
+			UserEntity user1=userRepo.findByUserId(post.getUser());
+			user1.setUnseenNoti((user1.getUnseenNoti()==null?0:user1.getUnseenNoti())+1);
+			userRepo.save(user1);
+			
+			}
+			
+			notificationRepo.save(notification);
 			
 			return "liked";
 		} else {

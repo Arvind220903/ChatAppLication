@@ -28,7 +28,12 @@ public class JwtFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 			FilterChain filterChain) throws ServletException, IOException {
 
+		// Check both standard and misspelled headers used in the app
 		String header = request.getHeader("Authorization");
+		if (header == null) {
+			header = request.getHeader("Autherization");
+		}
+		
 		String username = null;
 		String token = null;
 
@@ -39,8 +44,6 @@ public class JwtFilter extends OncePerRequestFilter {
 			} catch (Exception e) {
 				System.out.println("DEBUG JWT FILTER: token extraction failed: " + e.getMessage());
 			}
-		} else {
-			System.out.println("DEBUG JWT FILTER: no/invalid Authorization header for " + request.getMethod() + " " + request.getRequestURI());
 		}
 
 		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

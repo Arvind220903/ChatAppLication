@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.example.demo.entity.CommentEntity;
 import com.example.demo.entity.NotificationEntity;
 import com.example.demo.entity.PostEntity;
+import com.example.demo.entity.UserEntity;
 import com.example.demo.repository.CommentRepo;
 import com.example.demo.repository.NotificationRepo;
 import com.example.demo.repository.PostRepo;
@@ -34,10 +35,23 @@ public class CommentServiceImpl implements CommentService{
 		CommentEntity saved = commentRepo.save(comment);
 		post.getComments().add(saved);
 		postRepo.save(post);
-		NotificationEntity note=new NotificationEntity();
-		note.setTitle(saved.getUsername()+" comment on your Post");
-		note.setUserId(post.getUser());
-		notificationRepo.save(note);
+		UserEntity user=userRepo.findByUserId(comment.getUserId());
+		NotificationEntity notification=notificationRepo.findByTitleAndUserIdAndPostIdAndSender(
+				user.getUserName()+" commented on your post",post.getUser(),post.getPostId(),user.getUserId());
+		if(notification==null ) {
+			notification=new NotificationEntity();
+		
+		notification.setTitle(user.getUserName()+" commented on your post");
+		notification.setUserId(post.getUser());
+		notification.setPostId(post.getPostId());
+		notification.setSender(user.getUserId());
+		
+		UserEntity user1=userRepo.findByUserId(post.getUser());
+		user1.setUnseenNoti((user1.getUnseenNoti()==null?0:user1.getUnseenNoti())+1);
+		userRepo.save(user1);
+		
+		}
+		notificationRepo.save(notification);
 		return post.getComments();
 	}
 
