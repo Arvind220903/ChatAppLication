@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,14 +9,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entity.CommentEntity;
 import com.example.demo.entity.PostEntity;
-import com.example.demo.jwt.JwtService;
 import com.example.demo.service.CommentService;
 
 @RestController
@@ -23,8 +22,6 @@ import com.example.demo.service.CommentService;
 public class CommentController {
 	@Autowired
 	private CommentService commentService;
-	@Autowired
-	private JwtService jwt;
 
 	@PostMapping("/addcomment")
 	public List<CommentEntity> addComment(@RequestBody CommentEntity comment) {
@@ -40,16 +37,15 @@ public class CommentController {
 	public String deleteComment(@RequestParam int commentId, @RequestParam int userid) {
 		return commentService.deleteComment(commentId, userid);
 	}
+
 	@GetMapping("/getpostsbycomments")
-	public List<PostEntity> getPostsByComments(@RequestHeader("Authorization") String token){
-		String username=jwt.extractUsername(token.substring(7));
-		return commentService.getPostsByComments(username);
+	public List<PostEntity> getPostsByComments(Principal principal){
+		if (principal == null) return null;
+		return commentService.getPostsByComments(principal.getName());
 	}
+
 	@GetMapping("/getcommentedpostotheruser/{email}")
 	public List<PostEntity> getPostOfOtherUser(@PathVariable String email){
-		System.out.println();
-		System.out.println();
-		System.out.println("other user emaol-"+email);
 		return commentService.getPostsByComments(email);
 	}
 }

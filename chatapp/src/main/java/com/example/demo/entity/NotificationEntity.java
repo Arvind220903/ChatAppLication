@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -20,7 +21,10 @@ public class NotificationEntity {
 		private Integer userId;
 		
 		@CreationTimestamp
-		private Date createdAt;
+		private LocalDateTime createdAt;
+		private boolean seen=false;
+		private Integer postId;
+		private Integer sender;
 
 		public Integer getNotificationId() {
 			return notificationId;
@@ -38,11 +42,11 @@ public class NotificationEntity {
 			this.userId = userId;
 		}
 
-		public Date getCreatedAt() {
+		public LocalDateTime getCreatedAt() {
 			return createdAt;
 		}
 
-		public void setCreatedAt(Date createdAt) {
+		public void setCreatedAt(LocalDateTime createdAt) {
 			this.createdAt = createdAt;
 		}
 
@@ -53,5 +57,31 @@ public class NotificationEntity {
 		public void setTitle(String title) {
 			this.title = title;
 		}
+
+		public boolean isSeen() {
+			return seen;
+		}
+
+		public void setSeen(boolean seen) {
+			this.seen = seen;
+		}
+
+		public Integer getPostId() {
+			return postId;
+		}
+
+		
+		public Integer getSender() {
+			return sender;
+		}
+
+		public void setSender(Integer sender) {
+			this.sender = sender;
+		}
+
+		public void setPostId(Integer postId) {
+			this.postId = postId;
+		}
+		
 		
 }

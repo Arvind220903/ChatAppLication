@@ -94,12 +94,22 @@ public class UserServiceImpl implements UserService{
 			following.add(followId);
 			followers.add(userId);
 		}
-		NotificationEntity notification=new NotificationEntity();
+		NotificationEntity notification=notificationRepo.findByTitleAndUserIdAndSender(
+				user.getUserName()+" started Following You",followId,user.getUserId());
+		if(notification==null ) {
+			notification=new NotificationEntity();
+		
 		notification.setTitle(user.getUserName()+" started Following You");
 		notification.setUserId(followId);
-
+		notification.setSender(user.getUserId());
+		
+		UserEntity user1=userRepo.findByUserId(followId);
+		user1.setUnseenNoti((user1.getUnseenNoti()==null?0:user1.getUnseenNoti())+1);
+		userRepo.save(user1);
 		user.setFollowing(following);
 		target.setFollower(followers);
+		}
+		
 		notificationRepo.save(notification);
 		userRepo.save(user);
 		userRepo.save(target);
@@ -123,7 +133,11 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public List<NotificationEntity> notification(String email) {
-		List<NotificationEntity> posts=userRepo.findByUserEmail(email).getNotifications();
+		UserEntity user1=userRepo.findByUserEmail(email);
+		user1.setUnseenNoti(0);
+		userRepo.save(user1);
+		
+		List<NotificationEntity> posts=user1.getNotifications();
 		Collections.reverse(posts);
 		return posts;
 	}

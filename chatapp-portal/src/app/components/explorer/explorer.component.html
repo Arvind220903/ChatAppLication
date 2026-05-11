@@ -1,0 +1,63 @@
+<div class="explorer-wrapper">
+  <div class="map-overlay-header">
+    <div class="search-bar">
+      <lucide-icon [name]="SearchIcon" class="search-icon"></lucide-icon>
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        placeholder="Search for a city..." 
+        (keyup.enter)="searchCity()"
+        (input)="onSearchInput()"
+      >
+      <button class="search-btn" (click)="searchCity()">Explore</button>
+      <button class="locate-btn" (click)="locateMe()" title="Center on my location">
+        <lucide-icon [name]="LocateIcon" size="20"></lucide-icon>
+      </button>
+
+      <!-- Search Recommendations Dropdown -->
+      <div class="search-results-dropdown" *ngIf="recommendations.length > 0">
+        <div class="search-result-item" *ngFor="let rec of recommendations" (click)="selectRecommendation(rec)">
+          <lucide-icon [name]="MapPinIcon" size="14"></lucide-icon>
+          <span>{{ rec.display_name }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="map-container"></div>
+
+  <div class="info-panel">
+    <div class="panel-header">
+      <lucide-icon [name]="NavigationIcon" class="header-icon"></lucide-icon>
+      <h3>Region Explorer</h3>
+    </div>
+    
+    <div class="coord-display">
+      <span>Lat: {{ lat.toFixed(4) }}</span>
+      <span class="divider">|</span>
+      <span>Lng: {{ lng.toFixed(4) }}</span>
+    </div>
+
+    <p class="panel-desc">Drag the pin to any location to fetch posts from that specific neighborhood.</p>
+
+    <div class="post-list">
+      <div *ngIf="loading" class="status-msg">
+        <div class="spinner"></div>
+        Fetching local posts...
+      </div>
+      
+      <div *ngIf="!loading && posts.length === 0" class="status-msg">
+        No posts found in this neighborhood.
+      </div>
+
+      <div *ngFor="let post of posts" class="post-card">
+        <div class="post-user">
+          <div class="avatar-sm">{{ (post.userName || 'A')[0] }}</div>
+          <span class="username">{{"@" + (post.userName || 'Anonymous')}}</span>
+          <span class="dist-badge" *ngIf="post.distance">{{ post.distance.toFixed(2) }} km</span>
+        </div>
+        <p class="post-title">{{ post.title }}</p>
+      </div>
+    </div>
+  </div>
+</div>

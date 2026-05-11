@@ -1,0 +1,92 @@
+<div class="tag-feed-container">
+  <header class="tag-feed-header">
+    <button class="back-btn" routerLink="/trending-tags">
+      <lucide-icon [img]="ArrowLeftIcon" size="20"></lucide-icon>
+    </button>
+    <div class="header-info">
+      <h2>#{{ tagName }}</h2>
+      <p>{{ posts.length }} Posts</p>
+    </div>
+  </header>
+
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading posts...</p>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && posts.length === 0">
+    <lucide-icon [img]="ArrowLeftIcon" size="48" style="opacity: 0.2;"></lucide-icon>
+    <h3>No posts found</h3>
+    <p>Be the first to post with #{{ tagName }}!</p>
+  </div>
+
+  <div class="posts-list" *ngIf="!loading && posts.length > 0">
+    <div class="post-card" *ngFor="let post of posts">
+      <div class="post-header">
+        <div class="p-avatar-sm" (click)="goToProfile(post.userName || '')">
+          {{ post.userName ? post.userName.charAt(0).toUpperCase() : '?' }}
+        </div>
+        <div class="post-meta" (click)="goToProfile(post.userName || '')">
+          <span class="post-name">{{ post.userName }}</span>
+          <span class="post-handle">{{ '@' + post.userName?.toLowerCase() }}</span>
+          <span class="post-dot">·</span>
+          <span class="post-time">Active now</span>
+        </div>
+        <button class="more-btn">
+          <lucide-icon [img]="MoreVerticalIcon" size="18"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="post-body">
+        <p class="post-text">{{ post.title }}</p>
+        <div class="post-tags" *ngIf="post.tags && post.tags.length > 0">
+          <span class="post-tag" *ngFor="let t of post.tags" [routerLink]="['/tag', t]">{{t}}</span>
+        </div>
+      </div>
+
+      <div class="post-actions">
+        <button class="action-btn" [class.liked]="post.likedByUser" (click)="likePost(post)">
+          <lucide-icon [img]="HeartIcon" size="18" [style.color]="post.likedByUser ? '#ef4444' : ''"
+            [style.fill]="post.likedByUser ? '#ef4444' : 'none'">
+          </lucide-icon>
+          <span>{{ post.likeCount || 0 }}</span>
+        </button>
+
+        <button class="action-btn" (click)="post.showCommentBox = !post.showCommentBox">
+          <lucide-icon [img]="MessageCircleIcon" size="18"></lucide-icon>
+          <span>{{ post.comments?.length || 0 }}</span>
+        </button>
+
+        <button class="action-btn">
+          <lucide-icon [img]="SendIcon" size="18"></lucide-icon>
+        </button>
+
+        <div class="spacer"></div>
+
+        <button class="action-btn" [class.saved]="post.savedByUser" (click)="savePost(post)">
+          <lucide-icon [img]="BookmarkIcon" size="20" [style.color]="post.savedByUser ? '#f59e0b' : ''"
+            [style.fill]="post.savedByUser ? '#f59e0b' : 'none'">
+          </lucide-icon>
+        </button>
+      </div>
+
+      <!-- Comment Box -->
+      <div class="comment-box" *ngIf="post.showCommentBox">
+        <div class="comment-input-row">
+          <input type="text" placeholder="Write a comment..." [(ngModel)]="post.newCommentText"
+            (keyup.enter)="addComment(post)">
+          <button class="post-reply-btn" (click)="addComment(post)" [disabled]="!post.newCommentText">Reply</button>
+        </div>
+        <div class="comments-list" *ngIf="post.comments">
+          <div class="comment-item" *ngFor="let c of post.comments">
+            <div class="comment-avatar">{{ c.username ? c.username.charAt(0).toUpperCase() : 'U' }}</div>
+            <div class="comment-content">
+              <span class="comment-user">{{ c.username || 'User' }}</span>
+              <p class="comment-text">{{ c.comment }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

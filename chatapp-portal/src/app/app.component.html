@@ -1,0 +1,164 @@
+<div class="app-container" [class.logged-in]="isLoggedIn">
+
+  <!-- Top Navbar -->
+  <header class="top-nav" *ngIf="isLoggedIn">
+    <div class="nav-brand" routerLink="/feed">
+      <div class="brand-logo">H</div>
+      <span class="brand-text">Hoarding</span>
+    </div>
+
+    <div class="nav-search-container">
+      <div class="nav-search">
+        <lucide-icon [img]="SearchIcon" class="search-icon" size="22"></lucide-icon>
+        <input type="text" placeholder="Search users..." [(ngModel)]="searchQuery" (input)="onSearchInput()">
+      </div>
+      <div class="search-dropdown" *ngIf="showDropdown && searchResults.length > 0">
+        <div class="search-header">Results</div>
+        <a class="search-item" *ngFor="let res of searchResults" [routerLink]="['/profile', res]"
+          (click)="selectSearchResult(res)">
+          <div class="search-avatar">{{ res[0].toUpperCase() }}</div>
+          <div class="search-info">
+            <div class="search-name">{{ res }}</div>
+            <div class="search-handle">{{ '@' + res.toLowerCase().replace(' ', '') }}</div>
+          </div>
+          <lucide-icon [img]="UsersIcon" size="16" class="search-type-icon"></lucide-icon>
+        </a>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button class="icon-btn" title="Create Post">
+        <lucide-icon [img]="PlusSquareIcon" size="26"></lucide-icon>
+      </button>
+      <!-- Notification Bell -->
+      <div class="notif-wrapper">
+        <button class="icon-btn notif-btn" title="Notifications" (click)="toggleNotifications()">
+          <lucide-icon [img]="BellIcon" size="26"></lucide-icon>
+          <span class="notif-badge" *ngIf="((userService.currentUser$ | async)?.unseenNoti ?? 0) > 0">
+            {{ (userService.currentUser$ | async)?.unseenNoti }}
+          </span>
+        </button>
+
+        <!-- Dropdown Panel -->
+        <div class="notif-panel" *ngIf="showNotifications">
+          <div class="notif-panel-header">
+            <span>Notifications</span>
+            <button class="notif-close-btn" (click)="showNotifications = false">
+              <lucide-icon [img]="XIcon" size="18"></lucide-icon>
+            </button>
+          </div>
+
+          <div class="notif-loading" *ngIf="notifLoading">Loading...</div>
+
+          <div class="notif-empty" *ngIf="!notifLoading && notifications.length === 0">
+            No notifications yet.
+          </div>
+
+          <div class="notif-list" *ngIf="!notifLoading && notifications.length > 0">
+            <div class="notif-item" *ngFor="let n of notifications">
+              <div class="notif-title">{{ n.title }}</div>
+              <div class="notif-time">{{ n.createdAt | date: 'short' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="icon-btn" title="Messages">
+        <lucide-icon [img]="MailIcon" size="26"></lucide-icon>
+      </button>
+      <div class="nav-avatar">
+        {{ (userService.currentUser$ | async)?.userName?.[0]?.toUpperCase() || '?' }}
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+
+    <!-- Left Sidebar -->
+    <aside class="sidebar" *ngIf="isLoggedIn">
+      <!-- Profile Summary Card -->
+      <div class="profile-summary" *ngIf="userService.currentUser$ | async as user">
+        <div class="profile-summary-avatar" [routerLink]="['/profile', user.userName]">{{
+          user.userName?.[0]?.toUpperCase() }}</div>
+        <h3 class="profile-summary-name clickable" [routerLink]="['/profile', user.userName]">{{ user.userName }}</h3>
+        <p class="profile-summary-handle clickable" [routerLink]="['/profile', user.userName]">{{ '@' +
+          user.userName.toLowerCase().replace(' ', '') }}</p>
+
+        <div class="profile-stats">
+          <div class="stat"><strong>{{ user.postCount ?? user.posts?.length ?? 0 }}</strong><span>Posts</span></div>
+          <div class="stat clickable" (click)="toggleFollowers()">
+            <strong>{{ user.followerCount ?? user.follower?.length ?? 0 }}</strong>
+            <span>Followers</span>
+
+            <!-- Followers Dropdown -->
+            <div class="list-panel" *ngIf="showFollowers" (click)="$event.stopPropagation()">
+              <div class="list-panel-header">Followers</div>
+              <div class="list-loading" *ngIf="listLoading">Loading...</div>
+              <div class="list-empty" *ngIf="!listLoading && followers.length === 0">No followers yet.</div>
+              <div class="list-items" *ngIf="!listLoading && followers.length > 0">
+                <div class="list-item" *ngFor="let f of followers" (click)="navigateToUser(f.userName)">
+                  <div class="list-avatar">{{ f.userName[0].toUpperCase() }}</div>
+                  <span>{{ f.userName }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="stat clickable" (click)="toggleFollowing()">
+            <strong>{{ user.followingCount ?? user.following?.length ?? 0 }}</strong>
+            <span>Following</span>
+
+            <!-- Following Dropdown -->
+            <div class="list-panel" *ngIf="showFollowings" (click)="$event.stopPropagation()">
+              <div class="list-panel-header">Following</div>
+              <div class="list-loading" *ngIf="listLoading">Loading...</div>
+              <div class="list-empty" *ngIf="!listLoading && followings.length === 0">Not following anyone yet.</div>
+              <div class="list-items" *ngIf="!listLoading && followings.length > 0">
+                <div class="list-item" *ngFor="let f of followings" (click)="navigateToUser(f.userName)">
+                  <div class="list-avatar">{{ f.userName[0].toUpperCase() }}</div>
+                  <span>{{ f.userName }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="side-nav">
+        <a routerLink="/feed" routerLinkActive="active" class="nav-link">
+          <lucide-icon [img]="HomeIcon" size="24"></lucide-icon> Feed
+        </a>
+        <a routerLink="/explore" routerLinkActive="active" class="nav-link">
+          <lucide-icon [img]="CompassIcon" size="24"></lucide-icon> Explore
+        </a>
+        <a routerLink="/map" routerLinkActive="active" class="nav-link">
+          <lucide-icon [img]="MapIcon" size="24"></lucide-icon> Map
+        </a>
+        <a routerLink="/trending-tags" routerLinkActive="active" class="nav-link">
+          <lucide-icon [img]="HashIcon" size="24"></lucide-icon> Trending Tags
+        </a>
+        <a routerLink="/messages" routerLinkActive="active" class="nav-link">
+          <lucide-icon [img]="MailIcon" size="24"></lucide-icon> Messages
+        </a>
+        <a routerLink="/saved" routerLinkActive="active" class="nav-link">
+          <lucide-icon [img]="SaveIcon" size="24"></lucide-icon> Saved
+        </a>
+        <a routerLink="/likes" routerLinkActive="active" class="nav-link">
+          <lucide-icon [img]="HeartIcon" size="24"></lucide-icon> Likes
+        </a>
+        <a class="nav-link">
+          <lucide-icon [img]="SettingsIcon" size="24"></lucide-icon> Settings
+        </a>
+        <a href="javascript:void(0)" class="nav-link logout-link" (click)="logout()">
+          <lucide-icon [img]="LogOutIcon" size="24"></lucide-icon> Logout
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Router Outlet (Feed/Profile) -->
+    <main class="main-content">
+      <router-outlet />
+    </main>
+
+  </div>
+</div>

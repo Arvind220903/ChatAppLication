@@ -1,0 +1,145 @@
+<div class="feed-container">
+  <div class="posts-list">
+    <!-- Create Post Card -->
+    <div class="post-card create-post-card">
+      <div class="create-post-top">
+        <div class="p-avatar-sm">{{ (userService.currentUser$ | async)?.userName?.[0]?.toUpperCase() || '?' }}</div>
+        <div class="input-wrapper">
+          <input type="text" placeholder="What's on your mind?" class="pill-input" [(ngModel)]="newPostTitle"
+            (keyup.enter)="createPost()">
+
+          <div class="tag-section">
+            <div class="selected-tags">
+              <span class="tag-badge" *ngFor="let tag of selectedTags; let i = index">
+                {{tag}} <span class="remove-tag" (click)="removeTag(i)">&times;</span>
+              </span>
+            </div>
+            <div class="tag-input-wrapper">
+              <input type="text" placeholder="Add tags (space to add)" class="tag-pill-input" [(ngModel)]="tagInput"
+                (keyup)="onTagInput($event)">
+              <div class="tag-recommendations" *ngIf="tagRecommendations.length > 0">
+                <div class="rec-item" *ngFor="let rec of tagRecommendations"
+                  (click)="addTagFromRecommendation(rec.tags)">
+                  {{rec.tags}}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="location-section">
+            <div *ngIf="selectedLocation" class="selected-location-badge">
+              <lucide-icon [img]="MapPinIcon" size="14"></lucide-icon>
+              <span>{{ selectedLocation.display_name.split(',')[0] }}</span>
+              <span class="remove-tag" (click)="clearLocation()">&times;</span>
+            </div>
+            
+            <div class="tag-input-wrapper" *ngIf="!selectedLocation">
+              <input type="text" placeholder="Search location (optional)" class="tag-pill-input" [(ngModel)]="locationSearchQuery"
+                (input)="onLocationSearchInput()">
+              <div class="tag-recommendations location-dropdown" *ngIf="locationRecommendations.length > 0">
+                <div class="rec-item loc-item" *ngFor="let rec of locationRecommendations"
+                  (click)="selectLocation(rec)">
+                  <lucide-icon [img]="MapPinIcon" size="14"></lucide-icon>
+                  <span>{{ rec.display_name }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <button class="icon-btn-sm text-blue" (click)="toggleMapPicker()" title="Pick location on map">
+              <lucide-icon [img]="MapIcon" size="18"></lucide-icon>
+            </button>
+          </div>
+          
+          <!-- Leaflet Map Container -->
+          <div *ngIf="showMapPicker" class="map-picker-container">
+            <div id="create-post-map"></div>
+            <div class="map-picker-hint">Drag the pin to set your exact location</div>
+          </div>
+        </div>
+      </div>
+      <div class="create-post-bottom">
+        <div class="create-icons">
+          <button class="icon-btn-sm text-green"><lucide-icon [img]="ImageIcon" size="18"></lucide-icon></button>
+          <button class="icon-btn-sm text-red"><lucide-icon [img]="VideoIcon" size="18"></lucide-icon></button>
+          <button class="icon-btn-sm text-orange"><lucide-icon [img]="BarChartIcon" size="18"></lucide-icon></button>
+          <button class="icon-btn-sm text-blue"><lucide-icon [img]="SmileIcon" size="18"></lucide-icon></button>
+        </div>
+        <div class="spacer"></div>
+        <button class="btn-post" (click)="createPost()" [disabled]="!newPostTitle.trim()">Post</button>
+      </div>
+    </div>
+
+    <!-- Feed Posts -->
+    <div class="post-card" *ngFor="let post of posts">
+      <div class="post-header">
+        <div class="p-avatar-sm" (click)="goToProfile(post.userName || '')">{{ (post.userName || 'U')[0].toUpperCase()
+          }}</div>
+        <div class="post-meta" (click)="goToProfile(post.userName || '')">
+          <span class="post-name">{{ post.userName || 'Unknown User' }}</span>
+          <span class="post-handle">{{ '@' }}{{ (post.userName || 'unknown').toLowerCase().replace(' ', '') }}</span>
+          <span class="post-dot">·</span>
+          <span class="post-time">{{ calculateTimeAgo(post.createdAt) }}</span>
+        </div>
+        <button class="more-btn">
+          <lucide-icon [img]="MoreVerticalIcon" size="18"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="post-body">
+        <p class="post-text">{{ post.title }}</p>
+        <div class="post-tags" *ngIf="post.tags && post.tags.length > 0">
+          <span class="post-tag" *ngFor="let tag of post.tags">{{tag}}</span>
+        </div>
+      </div>
+
+      <div class="post-actions">
+        <button class="action-btn" [class.liked]="post.likedByUser" (click)="likePost(post)">
+          <lucide-icon [img]="HeartIcon" size="18" [style.color]="post.likedByUser ? '#ef4444' : ''"
+            [style.fill]="post.likedByUser ? '#ef4444' : 'none'">
+          </lucide-icon>
+          <span>{{ post.likeCount || 0 }}</span>
+        </button>
+
+        <button class="action-btn" (click)="post.showCommentBox = !post.showCommentBox">
+          <lucide-icon [img]="MessageCircleIcon" size="18"></lucide-icon>
+          <span>{{ post.comments?.length || 0 }}</span>
+        </button>
+
+        <button class="action-btn">
+          <lucide-icon [img]="SendIcon" size="18"></lucide-icon>
+          <span>Share</span>
+        </button>
+
+        <div class="spacer"></div>
+
+        <button class="action-btn save-btn" [class.saved]="post.savedByUser" (click)="savePost(post)">
+          <lucide-icon [img]="BookmarkIcon" size="20" [style.color]="post.savedByUser ? '#f59e0b' : ''"
+            [style.fill]="post.savedByUser ? '#f59e0b' : 'none'">
+          </lucide-icon>
+        </button>
+      </div>
+
+      <!-- Comments Section -->
+      <div class="comment-box" *ngIf="post.showCommentBox">
+        <div class="comment-input-row">
+          <input type="text" placeholder="Write a comment..." [(ngModel)]="post.newCommentText"
+            (keyup.enter)="addComment(post)">
+          <button class="post-reply-btn" (click)="addComment(post)" [disabled]="!post.newCommentText">Reply</button>
+        </div>
+        <div class="comments-list">
+          <div class="comment-item" *ngFor="let c of post.comments">
+            <div class="comment-avatar">{{ (c.username || 'U')[0].toUpperCase() }}</div>
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-user">{{ c.username || c.userName || 'User' }}</span>
+                <span class="comment-time">{{ calculateTimeAgo(c.edited) }}</span>
+              </div>
+              <p class="comment-text">{{ c.comment }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

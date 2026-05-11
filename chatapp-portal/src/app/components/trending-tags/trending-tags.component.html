@@ -1,0 +1,77 @@
+<div class="tags-container">
+  <div class="tags-header">
+    <div class="header-left">
+      <h2>Trending Tags</h2>
+      <p>Discover what's happening right now</p>
+    </div>
+
+    <div class="tag-search-container">
+      <div class="tag-search-bar">
+        <lucide-icon [img]="SearchIcon" size="18"></lucide-icon>
+        <input type="text" placeholder="Search tags..." [(ngModel)]="searchQuery" (input)="onSearchInput()">
+        <button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()">
+          <lucide-icon [img]="XIcon" size="16"></lucide-icon>
+        </button>
+      </div>
+
+      <!-- Suggestions Dropdown -->
+      <div class="tag-suggestions" *ngIf="searchResults.length > 0">
+        <div class="suggestion-item" *ngFor="let res of searchResults" (click)="selectTag(res)">
+          <lucide-icon [img]="HashIcon" size="16"></lucide-icon>
+          <span>{{ res }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Trending Section -->
+  <div class="trending-list-wrapper">
+    <div class="tags-loading" *ngIf="loading">
+      Loading trending topics...
+    </div>
+
+    <div class="tags-list" *ngIf="!loading">
+      <div class="tag-card" *ngFor="let t of tags" (click)="selectTag(t.tags)">
+        <div class="tag-card-header">
+          <div class="tag-avatar">
+            <lucide-icon [img]="HashIcon" size="20"></lucide-icon>
+          </div>
+          <div class="tag-meta">
+            <span class="tag-title">#{{ t.tags }}</span>
+            <span class="tag-subtitle">{{ t.recentUse || 0 }} posts in the last 24h</span>
+          </div>
+          <button class="more-btn">
+            <lucide-icon [img]="MoreVerticalIcon" size="18"></lucide-icon>
+          </button>
+        </div>
+
+        <div class="tag-body">
+          <p class="tag-description">Trending topic. Join the conversation and share your thoughts using {{ t.tags }}!
+          </p>
+        </div>
+
+        <div class="tag-actions">
+          <button class="action-btn">
+            <lucide-icon [img]="HeartIcon" size="18"></lucide-icon>
+            <span>{{ t.recentUse || 0 }}</span>
+          </button>
+          <button class="action-btn">
+            <lucide-icon [img]="MessageCircleIcon" size="18"></lucide-icon>
+            <span>Explore</span>
+          </button>
+          <button class="action-btn">
+            <lucide-icon [img]="SendIcon" size="18"></lucide-icon>
+          </button>
+          <div class="spacer"></div>
+          <button class="action-btn">
+            <lucide-icon [img]="BookmarkIcon" size="20"></lucide-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tags-empty" *ngIf="!loading && tags.length === 0">
+      No trending tags found at the moment. Check back later!
+    </div>
+  </div>
+</div>

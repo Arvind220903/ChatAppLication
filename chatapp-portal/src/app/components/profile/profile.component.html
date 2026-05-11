@@ -1,0 +1,282 @@
+<div class="profile-page" *ngIf="!loading; else loadingTpl">
+  <div class="profile-container" *ngIf="profileUser; else errorTpl">
+
+    <!-- Profile Header Card -->
+    <div class="profile-header-card">
+      <div class="profile-banner">
+        <img src="profile_banner.png" alt="Banner" class="banner-img"
+          onerror="this.src='https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80&w=1000'">
+      </div>
+
+      <div class="profile-header-content">
+        <div class="profile-avatar-wrapper">
+          <div class="profile-avatar-lg">{{ profileUser.userName?.[0]?.toUpperCase() }}</div>
+        </div>
+
+        <div class="profile-main-info">
+          <div class="profile-name-section">
+            <h2 class="profile-name">{{ profileUser.userName }}</h2>
+            <p class="profile-handle">{{ '@' }}{{ profileUser.userName?.toLowerCase()?.replace(' ', '') }}</p>
+            <p class="profile-bio">{{ profileUser.userbio || 'Just another user on Hoarding.' }}</p>
+
+            <div class="profile-stats-summary">
+              <div class="stat-item">
+                <strong>{{ profileUser.postCount ?? posts.length }}</strong>
+                <span>Posts</span>
+              </div>
+              <div class="stat-item clickable" (click)="toggleFollowers()">
+                <strong>{{ profileUser.followerCount ?? profileUser.follower?.length ?? 0 }}</strong>
+                <span>Followers</span>
+
+                <!-- Followers Dropdown -->
+                <div class="p-list-panel" *ngIf="showFollowers" (click)="$event.stopPropagation()">
+                  <div class="p-list-header">Followers</div>
+                  <div class="p-list-loading" *ngIf="listLoading">Loading...</div>
+                  <div class="p-list-empty" *ngIf="!listLoading && followers.length === 0">No followers yet.</div>
+                  <div class="p-list-items" *ngIf="!listLoading && followers.length > 0">
+                    <div class="p-list-item" *ngFor="let f of followers" (click)="navigateToUser(f.userName)">
+                      <div class="p-list-avatar">{{ f.userName[0].toUpperCase() }}</div>
+                      <span>{{ f.userName }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="stat-item clickable" (click)="toggleFollowing()">
+                <strong>{{ profileUser.followingCount ?? profileUser.following?.length ?? 0 }}</strong>
+                <span>Following</span>
+
+                <!-- Following Dropdown -->
+                <div class="p-list-panel" *ngIf="showFollowings" (click)="$event.stopPropagation()">
+                  <div class="p-list-header">Following</div>
+                  <div class="p-list-loading" *ngIf="listLoading">Loading...</div>
+                  <div class="p-list-empty" *ngIf="!listLoading && followings.length === 0">Not following anyone yet.
+                  </div>
+                  <div class="p-list-items" *ngIf="!listLoading && followings.length > 0">
+                    <div class="p-list-item" *ngFor="let f of followings" (click)="navigateToUser(f.userName)">
+                      <div class="p-list-avatar">{{ f.userName[0].toUpperCase() }}</div>
+                      <span>{{ f.userName }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-actions-row">
+            <button *ngIf="!isOwnProfile" class="follow-btn" [class.following]="isFollowing" (click)="toggleFollow()">
+              {{ isFollowing ? 'Following ✓' : 'Follow' }}
+            </button>
+            <button *ngIf="!isOwnProfile" class="message-btn" (click)="goToChat()">
+              Message
+            </button>
+            <button *ngIf="isOwnProfile" class="edit-profile-btn" (click)="openEditModal()">
+              Edit Profile
+            </button>
+            <button class="more-btn-circle">
+              <lucide-icon [img]="MoreVerticalIcon" size="20"></lucide-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /profile-header-card -->
+
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" *ngIf="showEditModal" (click)="showEditModal = false">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Edit Profile</h3>
+          <button class="close-btn" (click)="showEditModal = false">
+            <lucide-icon [img]="XIcon" size="20"></lucide-icon>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Bio</label>
+            <textarea [(ngModel)]="editBio" placeholder="Tell us about yourself..." rows="4"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" (click)="showEditModal = false">Cancel</button>
+          <button class="btn-save" (click)="saveProfile()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="profile-tabs">
+      <button class="tab-btn" [class.active]="activeTab === 'posts'" (click)="activeTab = 'posts'">Posts</button>
+      <button class="tab-btn" [class.active]="activeTab === 'comments'" (click)="activeTab = 'comments'">Commented
+        Posts</button>
+    </div>
+
+    <!-- Content Area -->
+    <div class="profile-content-area">
+
+      <!-- User's Posts Tab -->
+      <ng-container *ngIf="activeTab === 'posts'">
+        <div class="no-posts" *ngIf="posts.length === 0">No posts yet.</div>
+        <div class="post-card" *ngFor="let post of posts">
+          <div class="post-header">
+            <div class="p-avatar">{{ (profileUser?.userName || 'U')[0].toUpperCase() }}</div>
+            <div class="post-meta">
+              <span class="post-name">{{ profileUser?.userName }}</span>
+              <span class="post-handle">{{ '@' }}{{ profileUser?.userName?.toLowerCase()?.replace(' ', '') }}</span>
+              <span class="post-dot">·</span>
+              <span class="post-time">{{ calculateTimeAgo(post.createdAt) }}</span>
+
+            </div>
+            <div class="post-header-actions">
+              <button *ngIf="isOwnProfile" class="delete-post-btn" [class.confirming]="post.confirmDelete"
+                (click)="deletePost(post)" title="Delete Post">
+                {{ post.confirmDelete ? 'Confirm?' : 'Delete' }}
+              </button>
+              <button class="more-btn">
+                <lucide-icon [img]="MoreVerticalIcon" size="20"></lucide-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="post-body">
+            <p class="post-text">{{ post.title }}</p>
+
+            <div class="post-tags" *ngIf="post.tags && post.tags.length > 0">
+              <span class="post-tag" *ngFor="let tag of post.tags">{{tag}}</span>
+            </div>
+          </div>
+
+          <div class="post-actions">
+            <button class="action-btn" [class.liked]="post.likedByUser" (click)="likePost(post)">
+              <lucide-icon [img]="HeartIcon" size="20" [style.color]="post.likedByUser ? '#ef4444' : ''"
+                [style.fill]="post.likedByUser ? '#ef4444' : 'none'"></lucide-icon>
+              <span>{{ post.likeCount || 0 }}</span>
+            </button>
+            <button class="action-btn" (click)="post.showCommentBox = !post.showCommentBox">
+              <lucide-icon [img]="MessageCircleIcon" size="20"></lucide-icon>
+              <span>{{ post.comments?.length || 0 }}</span>
+            </button>
+            <button class="action-btn">
+              <lucide-icon [img]="SendIcon" size="20"></lucide-icon>
+              <span>Share</span>
+            </button>
+            <div class="p-spacer"></div>
+            <button class="action-btn" [class.saved]="post.savedByUser" (click)="savePost(post)">
+              <lucide-icon [img]="BookmarkIcon" size="20" [style.color]="post.savedByUser ? '#f59e0b' : ''"
+                [style.fill]="post.savedByUser ? '#f59e0b' : 'none'"></lucide-icon>
+            </button>
+          </div>
+
+          <!-- Comments Section -->
+          <div class="comment-box" *ngIf="post.showCommentBox">
+            <div class="comment-input-row">
+              <input type="text" placeholder="Write a comment..." [(ngModel)]="post.newCommentText"
+                (keyup.enter)="addComment(post)">
+              <button class="post-reply-btn" (click)="addComment(post)" [disabled]="!post.newCommentText">Reply</button>
+            </div>
+            <div class="comments-list">
+              <div class="comment-item" *ngFor="let c of post.comments">
+                <div class="comment-avatar">{{ (c.username || 'U')[0].toUpperCase() }}</div>
+                <div class="comment-content">
+                  <div class="comment-header">
+                    <span class="comment-user">{{ c.username || c.userName || 'User' }}</span>
+                    <span class="comment-time">{{ calculateTimeAgo(c.edited) }}</span>
+
+                  </div>
+                  <p class="comment-text">{{ c.comment }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Commented Posts Tab -->
+      <ng-container *ngIf="activeTab === 'comments'">
+        <div class="no-posts" *ngIf="commentedPosts.length === 0">No commented posts yet.</div>
+        <div class="post-card" *ngFor="let post of commentedPosts">
+          <div class="post-header">
+            <div class="p-avatar">{{ (post.userName || 'U')[0].toUpperCase() }}</div>
+            <div class="post-meta">
+              <span class="post-name">{{ post.userName }}</span>
+              <span class="post-handle">{{ '@' }}{{ post.userName?.toLowerCase()?.replace(' ', '') }}</span>
+              <span class="post-dot">·</span>
+              <span class="post-time">{{ calculateTimeAgo(post.createdAt) }}</span>
+            </div>
+            <div class="post-header-actions">
+              <button *ngIf="post.userName === userService.currentUser?.userName" class="delete-post-btn"
+                [class.confirming]="post.confirmDelete" (click)="deletePost(post)" title="Delete Post">
+                {{ post.confirmDelete ? 'Confirm?' : 'Delete' }}
+              </button>
+              <button class="more-btn">
+                <lucide-icon [img]="MoreVerticalIcon" size="20"></lucide-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="post-body">
+            <p class="post-text">{{ post.title }}</p>
+          </div>
+
+          <div class="post-actions">
+            <button class="action-btn" [class.liked]="post.likedByUser" (click)="likePost(post)">
+              <lucide-icon [img]="HeartIcon" size="20" [style.color]="post.likedByUser ? '#ef4444' : ''"
+                [style.fill]="post.likedByUser ? '#ef4444' : 'none'"></lucide-icon>
+              <span>{{ post.likeCount || 0 }}</span>
+            </button>
+            <button class="action-btn" (click)="post.showCommentBox = !post.showCommentBox">
+              <lucide-icon [img]="MessageCircleIcon" size="20"></lucide-icon>
+              <span>{{ post.comments?.length || 0 }}</span>
+            </button>
+            <button class="action-btn">
+              <lucide-icon [img]="SendIcon" size="20"></lucide-icon>
+              <span>Share</span>
+            </button>
+            <div class="p-spacer"></div>
+            <button class="action-btn" [class.saved]="post.savedByUser" (click)="savePost(post)">
+              <lucide-icon [img]="BookmarkIcon" size="20" [style.color]="post.savedByUser ? '#f59e0b' : ''"
+                [style.fill]="post.savedByUser ? '#f59e0b' : 'none'"></lucide-icon>
+            </button>
+          </div>
+
+          <!-- Comments Section -->
+          <div class="comment-box" *ngIf="post.showCommentBox">
+            <div class="comment-input-row">
+              <input type="text" placeholder="Write a comment..." [(ngModel)]="post.newCommentText"
+                (keyup.enter)="addComment(post)">
+              <button class="post-reply-btn" (click)="addComment(post)" [disabled]="!post.newCommentText">Reply</button>
+            </div>
+            <div class="comments-list">
+              <div class="comment-item" *ngFor="let c of post.comments">
+                <div class="comment-avatar">{{ (c.username || 'U')[0].toUpperCase() }}</div>
+                <div class="comment-content">
+                  <div class="comment-header">
+                    <span class="comment-user">{{ c.username || c.userName || 'User' }}</span>
+                    <span class="comment-time">{{ calculateTimeAgo(c.edited) }}</span>
+                  </div>
+                  <p class="comment-text">{{ c.comment }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+    </div><!-- /profile-content-area -->
+
+  </div><!-- /profile-container -->
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading-state">
+    <div class="loader"></div>
+    <p>Loading profile...</p>
+  </div>
+</ng-template>
+
+<ng-template #errorTpl>
+  <div class="error-state">
+    <lucide-icon [img]="XIcon" size="48" color="#e53e3e"></lucide-icon>
+    <h3>User not found</h3>
+    <p>The profile you're looking for doesn't exist or is unavailable.</p>
+    <button class="btn-primary" [routerLink]="['/feed']">Go back to Feed</button>
+  </div>
+</ng-template>
