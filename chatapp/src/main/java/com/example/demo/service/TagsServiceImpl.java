@@ -55,6 +55,9 @@ public class TagsServiceImpl implements TagsService {
 
 	@Override
 	public List<PostEntity> getPostsByTag(String tag) {
+		int i = 0;
+		while(i<tag.length() && tag.charAt(i)=='#')i++;
+		tag=tag.substring(i);
 		TagsEntity tags = tagRepo.findByTags(tag);
 		if (tags != null && tags.getPosts() != null) {
 			List<PostEntity> posts = tags.getPosts();

@@ -23,23 +23,29 @@ public class PostController {
 	private PostService postService;
 
 	@GetMapping("/getfollowingpost/{userid}")
-	public List<PostEntity> getFollowing(@PathVariable("userid") int userId){
+	public List<PostEntity> getFollowing(@PathVariable("userid") int userId) {
 		return postService.getFollowing(userId);
 	}
 
 	@GetMapping("/trending")
-	public List<PostEntity> trending(){
+	public List<PostEntity> trending() {
 		return postService.trending();
 	}
-	
+
 	@GetMapping("/postbyuser/{userid}")
-	public List<PostEntity> postByUser(@PathVariable("userid") int userId){
+	public List<PostEntity> postByUser(@PathVariable("userid") int userId) {
 		return postService.postByUser(userId);
+	}
+
+	@GetMapping("/region")
+	public List<PostEntity> getByRegion(@RequestParam double lat, @RequestParam double lng) {
+		return postService.region(0, lat, lng);
 	}
 
 	@PostMapping("/createpost")
 	public PostEntity createPost(@RequestBody PostEntity post, Principal principal) {
-		if (principal == null) return null;
+		if (principal == null)
+			return null;
 		return postService.createPost(post, principal.getName());
 	}
 
@@ -54,26 +60,30 @@ public class PostController {
 	}
 
 	@GetMapping("/feed")
-	public List<PostEntity> getFeed(Principal principal){
-		if (principal == null) return null;
+	public List<PostEntity> getFeed(Principal principal) {
+		if (principal == null)
+			return null;
 		return postService.feed(principal.getName());
 	}
 
 	@PostMapping("/saved/{postid}")
 	public String saved(@PathVariable("postid") int postid, Principal principal) {
-		if (principal == null) return "User not authenticated";
+		if (principal == null)
+			return "User not authenticated";
 		return postService.saved(postid, principal.getName());
 	}
-	
+
 	@GetMapping("/search")
 	public List<PostEntity> search(@RequestParam("q") String query, Principal principal) {
-		if (principal == null) return null;
+		if (principal == null)
+			return null;
 		return postService.search(query, principal.getName());
 	}
 
 	@GetMapping("/savedposts")
-	public List<PostEntity> savedPosts(Principal principal){
-		if (principal == null) return null;
+	public List<PostEntity> savedPosts(Principal principal) {
+		if (principal == null)
+			return null;
 		return postService.savedPosts(principal.getName());
 	}
 }

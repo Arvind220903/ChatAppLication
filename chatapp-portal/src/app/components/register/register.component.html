@@ -1,0 +1,36 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="logo">H</div>
+      <h1>Create an account</h1>
+      <p>Join Hoarding to connect with friends.</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="error-msg" *ngIf="error">{{ error }}</div>
+
+      <div class="input-group">
+        <label>Full Name</label>
+        <input type="text" [(ngModel)]="user.userName" name="name" required placeholder="John Doe" />
+      </div>
+
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="user.userEmail" name="email" required placeholder="name@example.com" />
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" [(ngModel)]="user.password" name="password" required placeholder="••••••••" minlength="6" />
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading || !user.userName || !user.userEmail || !user.password">
+        {{ loading ? 'Creating account...' : 'Sign up' }}
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a routerLink="/login">Sign in</a>
+    </div>
+  </div>
+</div>

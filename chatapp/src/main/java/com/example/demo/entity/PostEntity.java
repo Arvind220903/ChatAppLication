@@ -47,6 +47,8 @@ public class PostEntity {
 	private boolean isSaveByuser=false;
 	@ElementCollection
 	private List<String> tags;
+	@Transient
+	private double distance;
 	
 	
 	public boolean getisLikedByUser() {
@@ -129,6 +131,12 @@ public class PostEntity {
 	}
 	public void setTags(List<String> tags) {
 		this.tags = tags;
+	}
+	public double getDistance() {
+		return distance;
+	}
+	public void setDistance(double distance) {
+		this.distance = distance;
 	}
 	
 	

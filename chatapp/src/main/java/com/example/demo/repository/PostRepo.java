@@ -13,13 +13,15 @@ import com.example.demo.entity.PostEntity;
 
 @Repository
 
-public interface PostRepo extends JpaRepository<PostEntity,Integer>{
+public interface PostRepo extends JpaRepository<PostEntity, Integer> {
 
 	PostEntity findByPostId(int postId);
-	
+
 	List<PostEntity> findByTitleContainingIgnoreCaseOrUserNameContainingIgnoreCase(String title, String userName);
-	
+
 	List<PostEntity> findByUserInOrderByPostIdDesc(List<Integer> userIds, Pageable pageable);
-	
+
 	List<PostEntity> findByCreatedAtAfterOrderByLikeCountDesc(LocalDateTime tenDaysAgo, Pageable pageable);
+	
+	List<PostEntity> findByLatitudeBetweenAndLongitudeBetween(double minLat, double maxLat, double minLng, double maxLng);
 }

@@ -71,6 +71,8 @@ public class UserEntity {
 	@JsonIgnore
 	private List<UserEntity> chatWith;
 	private Integer unseenNoti=0;
+	@ManyToMany
+	private List<PostEntity> seenPost;
 
 	// Getters and Setters
 	public Integer getUserId() { return userId; }
@@ -117,5 +119,12 @@ public class UserEntity {
 	public void setUnseenNoti(Integer unseenNoti) {
 		this.unseenNoti = unseenNoti;
 	}
+	public List<PostEntity> getSeenPost() {
+		return seenPost;
+	}
+	public void setSeenPost(List<PostEntity> seenPost) {
+		this.seenPost = seenPost;
+	}
+	
 	
 }

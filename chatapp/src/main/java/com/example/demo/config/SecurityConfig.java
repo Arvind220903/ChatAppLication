@@ -53,11 +53,10 @@ public class SecurityConfig {
 		CorsConfiguration config = new CorsConfiguration();
 		// Include both localhost and 127.0.0.1 for both standard Angular ports
 		config.setAllowedOrigins(List.of(
-			"http://localhost:4200", 
-			"http://127.0.0.1:4200", 
-			"http://localhost:4201", 
-			"http://127.0.0.1:4201"
-		));
+				"http://localhost:4200",
+				"http://127.0.0.1:4200",
+				"http://localhost:4201",
+				"http://127.0.0.1:4201"));
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		// Explicitly list headers to ensure they aren't stripped
 		config.setAllowedHeaders(List.of("Authorization", "Autherization", "Content-Type", "token"));
@@ -74,7 +73,7 @@ public class SecurityConfig {
 
 	@Bean
 	public AuthenticationProvider authProvider() {
-		// In Spring Security 7.x, the constructor requires UserDetailsService
+
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(myUd);
 		provider.setPasswordEncoder(bcrypt());
 		return provider;

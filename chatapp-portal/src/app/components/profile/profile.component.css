@@ -1,0 +1,635 @@
+.profile-page {
+  width: 100%;
+  padding-bottom: 60px;
+}
+
+/* ─── Profile Header Card ────────────────────────── */
+.profile-header-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.profile-banner {
+  height: 200px;
+  width: 100%;
+  overflow: hidden;
+  background: #1a1a2e;
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+}
+
+.banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.8;
+}
+
+.profile-header-content {
+  padding: 0 32px 32px;
+  position: relative;
+  z-index: 10;
+}
+
+/* Avatar overlapping the banner */
+.profile-avatar-wrapper {
+  margin-top: -60px;
+  margin-bottom: 16px;
+  position: relative;
+  display: inline-block;
+}
+
+.profile-avatar-lg {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #2d2d3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 800;
+  color: #fff;
+  border: 6px solid var(--surface);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.profile-main-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.profile-name-section h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.profile-handle {
+  margin: 4px 0 12px;
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+}
+
+.profile-bio {
+  margin: 12px 0 20px;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+.profile-actions-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.follow-btn, .edit-profile-btn, .message-btn {
+  padding: 10px 24px;
+  border-radius: 24px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1px solid var(--border);
+}
+
+.follow-btn {
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+}
+
+.follow-btn.following {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.edit-profile-btn, .message-btn {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.follow-btn:hover, .edit-profile-btn:hover, .message-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.more-btn-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.more-btn-circle:hover { background: var(--border); color: #fff; }
+
+/* Horizontal stats below bio */
+.profile-stats-summary {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: var(--transition);
+}
+
+.stat-item.clickable {
+  cursor: pointer;
+}
+
+.stat-item.clickable:hover {
+  background: var(--surface-hover);
+}
+
+.stat-item strong {
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.stat-item span {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* ─── Profile List Panel (Followers/Following) ────────── */
+.p-list-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 260px;
+  background: #1e1e2e;
+  border: 1px solid #3f3f5f;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  z-index: 1000;
+  overflow: hidden;
+  animation: p-panel-drop 0.2s ease-out;
+  cursor: default;
+}
+
+@keyframes p-panel-drop {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.p-list-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.p-list-loading,
+.p-list-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.p-list-items {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.p-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.p-list-item:last-child { border-bottom: none; }
+.p-list-item:hover { background: var(--bg); }
+
+.p-list-item span {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+.p-list-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #2d2d3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ─── Profile Tabs ────────────────────────────────── */
+.profile-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+  gap: 32px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  padding: 14px 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.tab-btn:hover { color: #fff; }
+.tab-btn.active { color: #e53e3e; }
+
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #e53e3e;
+  border-radius: 2px 2px 0 0;
+}
+
+/* ─── Posts ───────────────────────────────────────── */
+.profile-content-area {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.post-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: background 0.2s;
+}
+
+.post-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.p-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #2d2d3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.post-meta {
+  flex: 1;
+  margin-left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-name { font-weight: 700; color: #fff; }
+.post-handle { color: var(--text-secondary); font-size: 0.9rem; }
+.post-dot { color: var(--text-tertiary); }
+.post-time { color: var(--text-tertiary); font-size: 0.9rem; }
+
+.post-body { margin-bottom: 20px; }
+.post-text { font-size: 1.05rem; line-height: 1.6; color: var(--text); margin: 0; }
+
+.post-actions {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn:hover { color: #fff; }
+.action-btn.liked { color: #e53e3e; }
+
+.p-spacer { flex: 1; }
+
+/* ─── States ─────────────────────────────────────── */
+.no-posts {
+  text-align: center;
+  padding: 60px 0;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px dashed var(--border);
+}
+
+.loading-state {
+  text-align: center;
+  padding: 100px 0;
+  color: var(--text-secondary);
+}
+
+.error-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+/* ─── Comments ───────────────────────────────────── */
+.comment-box {
+  margin-top: 16px;
+  background: var(--bg);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.comment-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.comment-input-row input {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.post-reply-btn {
+  padding: 6px 16px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.post-reply-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.comment-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+
+.comment-content {
+  flex: 1;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.comment-user {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.comment-time {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.comment-text {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.edit-profile-btn {
+  padding: 10px 24px;
+  background: var(--surface-hover);
+  color: #fff;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-profile-btn:hover { background: var(--border); transform: translateY(-1px); }
+
+.post-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.delete-post-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-post-btn:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+.delete-post-btn.confirming {
+  background: #ef4444;
+  color: #fff;
+  border-color: #ef4444;
+  font-weight: 700;
+}
+
+/* ─── Modal ───────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 { margin: 0; font-size: 1.2rem; font-weight: 700; color: #fff; }
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+}
+.close-btn:hover { background: var(--border); color: #fff; }
+
+.modal-body { padding: 24px; }
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.form-group textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group textarea:focus { border-color: var(--accent); }
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.btn-cancel {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-cancel:hover { background: var(--border); color: #fff; }
+
+.btn-save {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-save:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
