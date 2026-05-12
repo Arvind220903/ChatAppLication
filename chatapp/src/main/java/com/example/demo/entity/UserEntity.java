@@ -73,7 +73,13 @@ public class UserEntity {
 	private Integer unseenNoti=0;
 	@ManyToMany
 	private List<PostEntity> seenPost;
-
+	@ManyToMany
+	private List<TagsEntity> likeTags;
+	@ManyToMany
+	private List<TagsEntity> commentedTags;
+	@ManyToMany
+	private List<TagsEntity> savedTags;
+	private String status;
 	// Getters and Setters
 	public Integer getUserId() { return userId; }
 	public void setUserId(Integer userId) { this.userId = userId; }
@@ -125,6 +131,32 @@ public class UserEntity {
 	public void setSeenPost(List<PostEntity> seenPost) {
 		this.seenPost = seenPost;
 	}
+	public List<TagsEntity> getLikeTags() {
+		return likeTags;
+	}
+	public void setLikeTags(List<TagsEntity> likeTags) {
+		this.likeTags = likeTags;
+	}
+	public List<TagsEntity> getCommentedTags() {
+		return commentedTags;
+	}
+	public void setCommentedTags(List<TagsEntity> commentdTags) {
+		this.commentedTags = commentdTags;
+	}
+	public List<TagsEntity> getSavedTags() {
+		return savedTags;
+	}
+	public void setSavedTags(List<TagsEntity> savedTags) {
+		this.savedTags = savedTags;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+	
 	
 	
 }

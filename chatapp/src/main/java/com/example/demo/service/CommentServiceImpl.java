@@ -10,10 +10,12 @@ import org.springframework.stereotype.Service;
 import com.example.demo.entity.CommentEntity;
 import com.example.demo.entity.NotificationEntity;
 import com.example.demo.entity.PostEntity;
+import com.example.demo.entity.TagsEntity;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.repository.CommentRepo;
 import com.example.demo.repository.NotificationRepo;
 import com.example.demo.repository.PostRepo;
+import com.example.demo.repository.TagsRepo;
 import com.example.demo.repository.UserRepo;
 
 @Service
@@ -26,6 +28,8 @@ public class CommentServiceImpl implements CommentService{
 	private UserRepo userRepo;
 	@Autowired
 	private NotificationRepo notificationRepo;
+	@Autowired
+	private TagsRepo tagsRepo;
 
 	@Override
 	public List<CommentEntity> addComment(CommentEntity comment) {
@@ -48,7 +52,18 @@ public class CommentServiceImpl implements CommentService{
 		
 		UserEntity user1=userRepo.findByUserId(post.getUser());
 		user1.setUnseenNoti((user1.getUnseenNoti()==null?0:user1.getUnseenNoti())+1);
+		
+		List<String> tags=post.getTags();
+		
+		List<TagsEntity> commentedTags=user1.getCommentedTags();
+		if(commentedTags==null)commentedTags=new ArrayList<>();
+		for(String s : tags) {
+			TagsEntity t1=tagsRepo.findByTags(s);
+			if(t1!=null)commentedTags.add(t1);
+		}
+		user1.setCommentedTags(commentedTags);
 		userRepo.save(user1);
+		
 		
 		}
 		notificationRepo.save(notification);

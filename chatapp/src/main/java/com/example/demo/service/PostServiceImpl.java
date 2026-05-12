@@ -1,14 +1,13 @@
 package com.example.demo.service;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -84,9 +83,9 @@ public class PostServiceImpl implements PostService {
 		posts.removeIf(post -> post.getDistance() > radiusKm);
 
 		// Exclude the originating post from the results if applicable
-		if (postid > 0) {
-			posts.removeIf(post -> post.getPostId() == postid);
-		}
+//		if (postid > 0) {
+//			posts.removeIf(post -> post.getPostId() == postid);
+//		}
 
 		// Sort from nearest to farthest
 		posts.sort((p1, p2) -> Double.compare(p1.getDistance(), p2.getDistance()));
@@ -102,7 +101,7 @@ public class PostServiceImpl implements PostService {
 		double a = Math.pow(Math.sin(dLat / 2), 2) +
 				   Math.pow(Math.sin(dLon / 2), 2) *
 				   Math.cos(lat1) * Math.cos(lat2);
-		double c = 2 * Math.asin(Math.sqrt(a));
+		double c = 2 * Math.atan2(Math.pow(a, 0.5),Math.pow(1-a, 0.5));
 		return 6371 * c; // Earth's radius in KM
 	}
 
@@ -216,26 +215,35 @@ public class PostServiceImpl implements PostService {
 		}
 		user.setSeenPost(seen);
 		userRepo.save(user);
-		while (tIndex < trending.size() || fIndex < following.size()) {
-			if (fIndex < following.size()) {
-				if(!seen.contains(following.get(fIndex))) {
-					mixedSet.add(following.get(fIndex));
-					
-					
-					
-					}
-				fIndex++;
-				}
-			
-			if (fIndex < following.size()) {
-				mixedSet.add(following.get(fIndex++));
-			}
-			if (tIndex < trending.size()) {
-				mixedSet.add(trending.get(tIndex++));
-			}
+//		while (tIndex < trending.size() || fIndex < following.size()) {
+//			if (fIndex < following.size()) {
+//				if(!seen.contains(following.get(fIndex))) {
+//					mixedSet.add(following.get(fIndex));
+//					
+//					
+//					
+//					}
+//				fIndex++;
+//				}
+//			
+//			if (fIndex < following.size()) {
+//				mixedSet.add(following.get(fIndex++));
+//			}
+//			if (tIndex < trending.size()) {
+//				mixedSet.add(trending.get(tIndex++));
+//			}
+//		}
+		Set<PostEntity> postSet=new HashSet<>();
+		
+		for(TagsEntity t : user.getLikeTags()) {
+			postSet.addAll(t.getPosts());
 		}
-
-		List<PostEntity> result = new ArrayList<>(mixedSet);
+		for(TagsEntity t:user.getCommentedTags()) {
+			postSet.addAll(t.getPosts());
+		}
+		
+		List<PostEntity> result = new ArrayList<>();
+		for(PostEntity p1:postSet)result.add(p1);
 		result.forEach(p -> {
 			if (p.getUserName() == null) {
 				UserEntity u = userRepo.findByUserId(p.getUser());
@@ -250,6 +258,9 @@ public class PostServiceImpl implements PostService {
 			return b.getCreatedAt().compareTo(a.getCreatedAt());
 		});
 		while(!sPosts.isEmpty())result.add(0,sPosts.poll());
+		Set<PostEntity> set=new HashSet<>();
+		set.addAll(trending());
+		for(PostEntity p:set)result.add(p);
 
 		return result;
 	}

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.NotificationEntity;
 import com.example.demo.entity.UserEntity;
+import com.example.demo.repository.MessagePermissionRepo;
 import com.example.demo.repository.NotificationRepo;
 import com.example.demo.repository.UserRepo;
 @Service
@@ -18,6 +19,8 @@ public class UserServiceImpl implements UserService{
 	private UserRepo userRepo;
 	@Autowired
 	private NotificationRepo notificationRepo;
+	@Autowired
+	MessagePermissionRepo msgPerRepo;
 	
 	
 	@Autowired
@@ -123,11 +126,13 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public UserEntity getProfileByUserName(String username) {
+	public UserEntity getProfileByUserName(String email,String username) {
 		UserEntity user=userRepo.findByUserName(username);
+		UserEntity user1=userRepo.findByUserEmail(email);
 		user.setPostCount(user.getPosts().size());
 		user.setFollowerCount(user.getFollower().size());
 		user.setFollowingCount(user.getFollowing().size());
+		user.setStatus(msgPerRepo.findByUserId1AndUserId2(user1.getUserId(),user.getUserId()).getStatus());
 		return user;
 	}
 

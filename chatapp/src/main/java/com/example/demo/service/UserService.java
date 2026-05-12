@@ -16,6 +16,6 @@ public interface UserService {
 	public List<UserEntity> getFollowing(String email);
 	public String follow(String email,int followr);
 	public List<String> search(String username);
-	public UserEntity getProfileByUserName(String username);
+	public UserEntity getProfileByUserName(String email,String username);
 	public List<NotificationEntity> notification(String email);
 }

@@ -110,8 +110,8 @@ public class UserController {
 	}
 
 	@GetMapping("/getprofilebyusername/{username}")
-	public UserEntity getbyusername(@PathVariable String username) {
-		return userService.getProfileByUserName(username);
+	public UserEntity getbyusername(Principal principal,@PathVariable String username) {
+		return userService.getProfileByUserName(principal.getName(),username);
 	}
 
 	@GetMapping("/notifications")

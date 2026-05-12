@@ -10,10 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.entity.Likes;
 import com.example.demo.entity.NotificationEntity;
 import com.example.demo.entity.PostEntity;
+import com.example.demo.entity.TagsEntity;
 import com.example.demo.entity.UserEntity;
 import com.example.demo.repository.LikesRepo;
 import com.example.demo.repository.NotificationRepo;
 import com.example.demo.repository.PostRepo;
+import com.example.demo.repository.TagsRepo;
 import com.example.demo.repository.UserRepo;
 
 @Service
@@ -26,6 +28,8 @@ public class LikesServiceImpl implements LikesService {
 	private UserRepo userRepo;
 	@Autowired
 	private NotificationRepo notificationRepo;
+	@Autowired
+	private TagsRepo tagsRepo;
 	@Override
 	@Transactional
 	public String likePost(String email, int postId) {
@@ -52,6 +56,16 @@ public class LikesServiceImpl implements LikesService {
 			
 			UserEntity user1=userRepo.findByUserId(post.getUser());
 			user1.setUnseenNoti((user1.getUnseenNoti()==null?0:user1.getUnseenNoti())+1);
+			
+			List<String> tags=post.getTags();
+			
+			List<TagsEntity> likeTags=user1.getLikeTags();
+			if(likeTags==null)likeTags=new ArrayList<>();
+			for(String s : tags) {
+				TagsEntity t1=tagsRepo.findByTags(s);
+				if(t1!=null)likeTags.add(t1);
+			}
+			user1.setLikeTags(likeTags);
 			userRepo.save(user1);
 			
 			}
