@@ -2,7 +2,10 @@ package com.example.demo.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,11 +38,15 @@ public class CommentServiceImpl implements CommentService{
 	public List<CommentEntity> addComment(CommentEntity comment) {
 		PostEntity post = postRepo.findByPostId(comment.getPostId());
 		if (post == null) return null;
-		comment.setUsername(userRepo.findByUserId(comment.getUserId()).getUserName());
+		
+		UserEntity user = userRepo.findByUserId(comment.getUserId());
+		if (user == null) return null;
+		
+		comment.setUsername(user.getUserName());
 		CommentEntity saved = commentRepo.save(comment);
 		post.getComments().add(saved);
 		postRepo.save(post);
-		UserEntity user=userRepo.findByUserId(comment.getUserId());
+		
 		NotificationEntity notification=notificationRepo.findByTitleAndUserIdAndPostIdAndSender(
 				user.getUserName()+" commented on your post",post.getUser(),post.getPostId(),user.getUserId());
 		if(notification==null ) {
@@ -50,17 +57,17 @@ public class CommentServiceImpl implements CommentService{
 		notification.setPostId(post.getPostId());
 		notification.setSender(user.getUserId());
 		
-		UserEntity user1=userRepo.findByUserId(post.getUser());
+		UserEntity user1 = (user.getUserId() == post.getUser()) ? user : userRepo.findByUserId(post.getUser());
 		user1.setUnseenNoti((user1.getUnseenNoti()==null?0:user1.getUnseenNoti())+1);
 		
 		List<String> tags=post.getTags();
 		
-		List<TagsEntity> commentedTags=user1.getCommentedTags();
-		if(commentedTags==null)commentedTags=new ArrayList<>();
-		for(String s : tags) {
-			TagsEntity t1=tagsRepo.findByTags(s);
-			if(t1!=null)commentedTags.add(t1);
+		Set<TagsEntity> commentedTags=user1.getCommentedTags();
+		if(commentedTags==null)commentedTags=new HashSet<>();
+		if (tags != null && !tags.isEmpty()) {
+			commentedTags.addAll(tagsRepo.findBatchByTags(tags));
 		}
+		
 		user1.setCommentedTags(commentedTags);
 		userRepo.save(user1);
 		
@@ -96,19 +103,16 @@ public class CommentServiceImpl implements CommentService{
 	public List<PostEntity> getPostsByComments(String username) {
 		// Query the comment table directly by userId — the UserEntity.comment
 		// join table is never populated so getComment() always returns empty.
-		com.example.demo.entity.UserEntity user = userRepo.findByUserEmail(username);
+		UserEntity user = userRepo.findByUserEmail(username);
 		if (user == null) return new ArrayList<>();
 
 		List<CommentEntity> comments = commentRepo.findByUserId(user.getUserId());
 		List<PostEntity> ans = new ArrayList<>();
-		java.util.Set<Integer> seen = new java.util.LinkedHashSet<>();
-
-		for (CommentEntity c : comments) {
-			if (seen.add(c.getPostId())) {          // deduplicate — same post, multiple comments
-				PostEntity post = postRepo.findByPostId(c.getPostId());
-				if (post != null) ans.add(post);
-			}
-		}
+		Set<Integer> seen = new LinkedHashSet<>();
+		Set<Integer> set=new HashSet<>();
+		for(CommentEntity c:comments)set.add(c.getPostId());
+		
+		ans.addAll(postRepo.findAllById(set));
 		Collections.reverse(ans);                   // newest first
 		return ans;
 	}

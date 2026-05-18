@@ -90,26 +90,18 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<UserEntity> getFollowers(String email) {
-		int userId = userRepo.findByUserEmail(email).getUserId();
-		UserEntity user = userRepo.findByUserId(userId);
-		List<Integer> ids = user.getFollower();
-		List<UserEntity> users = new ArrayList<>();
-		for (int i : ids) {
-			users.add(userRepo.findByUserId(i));
-		}
-		return users;
+		UserEntity user = userRepo.findByUserEmail(email);
+		if (user == null || user.getFollower() == null) return new ArrayList<>();
+		Set<Integer> ids = user.getFollower();
+		return userRepo.findAllById(ids);
 	}
 
 	@Override
 	public List<UserEntity> getFollowing(String email) {
-		int userId = userRepo.findByUserEmail(email).getUserId();
-		UserEntity user = userRepo.findByUserId(userId);
-		List<Integer> ids = user.getFollowing();
-		List<UserEntity> users = new ArrayList<>();
-		for (int i : ids) {
-			users.add(userRepo.findByUserId(i));
-		}
-		return users;
+		UserEntity user = userRepo.findByUserEmail(email);
+		if (user == null || user.getFollowing() == null) return new ArrayList<>();
+		Set<Integer> ids = user.getFollowing();
+		return userRepo.findAllById(ids);
 	}
 
 	@Override
@@ -121,19 +113,19 @@ public class UserServiceImpl implements UserService {
 		if (user == null || target == null)
 			return "Fail";
 
-		// Initialize lists if null (first-time follow)
-		List<Integer> following = user.getFollowing();
+		// Initialize sets if null (first-time follow)
+		Set<Integer> following = user.getFollowing();
 		if (following == null)
-			following = new ArrayList<>();
+			following = new HashSet<>();
 
-		List<Integer> followers = target.getFollower();
+		Set<Integer> followers = target.getFollower();
 		if (followers == null)
-			followers = new ArrayList<>();
+			followers = new HashSet<>();
 
 		if (following.contains(followId)) {
 			// Unfollow
-			following.remove(Integer.valueOf(followId));
-			followers.remove(Integer.valueOf(userId));
+			following.remove(followId);
+			followers.remove(userId);
 		} else {
 			// Follow
 			following.add(followId);

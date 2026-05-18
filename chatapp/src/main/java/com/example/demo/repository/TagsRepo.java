@@ -1,5 +1,6 @@
 package com.example.demo.repository;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,5 +18,7 @@ public interface TagsRepo extends JpaRepository<TagsEntity, Integer> {
 
 	@Query("select t from TagsEntity as t where t.tags like concat ('%', :keyword ,'%')")
 	public List<TagsEntity> getAllTags(@Param("keyword") String keyword);
+	@Query("select t from TagsEntity t where t.tags in :tags")
+	public List<TagsEntity> findBatchByTags(@Param("tags") List<String> tags);
 
 }

@@ -2,6 +2,8 @@ package com.example.demo.jwt;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +21,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 public class JwtFilter extends OncePerRequestFilter {
+	
+	private static final Logger log = LoggerFactory.getLogger(JwtFilter.class);
+
 	@Autowired
 	private MyUserDetailService myud;
 	@Autowired
@@ -42,7 +47,8 @@ public class JwtFilter extends OncePerRequestFilter {
 			try {
 				username = jwt.extractUsername(token);
 			} catch (Exception e) {
-				System.out.println("DEBUG JWT FILTER: token extraction failed: " + e.getMessage());
+				log.warn("[JWT FILTER WARN] Token extraction failed for request to {}: {}", 
+						request.getRequestURI(), e.getMessage());
 			}
 		}
 
@@ -54,10 +60,15 @@ public class JwtFilter extends OncePerRequestFilter {
 							new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 					authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 					SecurityContextHolder.getContext().setAuthentication(authToken);
+					log.info("[JWT FILTER SUCCESS] Authenticated user '{}' successfully for path: {}", 
+							username, request.getRequestURI());
+				} else {
+					log.warn("[JWT FILTER WARN] Token validation failed for user '{}' for path: {}", 
+							username, request.getRequestURI());
 				}
 			} catch (Exception e) {
-				System.out.println("DEBUG JWT FILTER EXCEPTION:");
-				e.printStackTrace();
+				log.error("[JWT FILTER ERROR] Exception occurred during context authentication for user '{}'", 
+						username, e);
 				SecurityContextHolder.clearContext();
 			}
 		}
