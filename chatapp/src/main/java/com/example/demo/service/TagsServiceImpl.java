@@ -2,10 +2,15 @@ package com.example.demo.service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,15 +47,21 @@ public class TagsServiceImpl implements TagsService {
 				}
 			}
 			t.setRecentPosts(q);
+			t.setRecentUse(q.size());
 			tagRepo.save(t);
 		}
 	}
 
 	@Override
-	public List<TagsEntity> getTrending() {
-		List<TagsEntity> tag = tagRepo.findAll();
-		Collections.sort(tag, (a, b) -> b.getRecentPosts().size() - a.getRecentPosts().size());
-		return tag;
+	public List<TagsEntity> getTrending(int pageNumber,int pageSize) {
+		Pageable p=PageRequest.of(pageNumber,pageSize,Sort.by(Sort.Direction.DESC,"recentUse"));
+		Page<TagsEntity> tag = tagRepo.findAll(p);
+		List<TagsEntity> tags=new ArrayList<>();
+		for(TagsEntity t:tag) {
+			if(t.getRecentUse()>0)tags.add(t);
+		}
+		
+		return tags;
 	}
 
 	@Override
@@ -58,7 +69,7 @@ public class TagsServiceImpl implements TagsService {
 		int i = 0;
 		while(i<tag.length() && tag.charAt(i)=='#')i++;
 		tag=tag.substring(i);
-		TagsEntity tags = tagRepo.findByTags(tag);
+		TagsEntity tags = tagRepo.findFirstByTags(tag);
 		if (tags != null && tags.getPosts() != null) {
 			List<PostEntity> posts = tags.getPosts();
 			Collections.sort(posts, (a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));

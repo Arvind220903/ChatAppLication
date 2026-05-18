@@ -66,6 +66,7 @@ public class CommentServiceImpl implements CommentService{
 		
 		
 		}
+		if(notification!=null)notification.setPostId(post.getPostId());
 		notificationRepo.save(notification);
 		return post.getComments();
 	}

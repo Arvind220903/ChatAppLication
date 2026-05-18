@@ -1,9 +1,13 @@
 package com.example.demo.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,14 +66,14 @@ public class LikesServiceImpl implements LikesService {
 			List<TagsEntity> likeTags=user1.getLikeTags();
 			if(likeTags==null)likeTags=new ArrayList<>();
 			for(String s : tags) {
-				TagsEntity t1=tagsRepo.findByTags(s);
+				TagsEntity t1=tagsRepo.findFirstByTags(s);
 				if(t1!=null)likeTags.add(t1);
 			}
 			user1.setLikeTags(likeTags);
 			userRepo.save(user1);
 			
 			}
-			
+			if(notification!=null)notification.setPostId(post.getPostId());
 			notificationRepo.save(notification);
 			
 			return "liked";
@@ -93,19 +97,26 @@ public class LikesServiceImpl implements LikesService {
 	}
 
 	@Override
-	public List<PostEntity> getByLikes(String username) {
+	@Transactional(readOnly = true)
+	public List<PostEntity> getByLikes(String username, int pageNumber, int pageSize) {
+		Pageable p = PageRequest.of(pageNumber, pageSize);
 		UserEntity user = userRepo.findByUserEmail(username);
 		if (user == null) return new ArrayList<>();
-		
-		List<Likes> likes = likesRepo.findByUserId(user.getUserId());
-		List<PostEntity> ans = new ArrayList<>();
-		for(Likes like : likes) {
-			PostEntity post = postRepo.findByPostId(like.getPostId());
-			if (post != null) {
-				
-				ans.add(post);
+
+		List<PostEntity> ans = postRepo.findLikedPosts(user.getUserId(), p);
+
+		List<PostEntity> saved=user.getSaved();
+		Set<PostEntity> savedPosts=new HashSet<>();
+		if(saved!=null)savedPosts.addAll(saved);
+		if (ans != null) {
+			for (PostEntity post : ans) {
+				if (post != null) {
+					post.setLikedByUser(true);
+					if(savedPosts.contains(post))post.setSaveByuser(true);
+				}
 			}
 		}
+
 		return ans;
 	}
 }

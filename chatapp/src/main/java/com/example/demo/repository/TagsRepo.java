@@ -13,6 +13,7 @@ import com.example.demo.entity.TagsEntity;
 public interface TagsRepo extends JpaRepository<TagsEntity, Integer> {
 
 	TagsEntity findByTags(String tag);
+	TagsEntity findFirstByTags(String tag);
 
 	@Query("select t from TagsEntity as t where t.tags like concat ('%', :keyword ,'%')")
 	public List<TagsEntity> getAllTags(@Param("keyword") String keyword);
