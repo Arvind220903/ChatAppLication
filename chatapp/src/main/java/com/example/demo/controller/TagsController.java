@@ -20,8 +20,8 @@ public class TagsController {
 	TagsService tagsService;
 
 	@GetMapping("/trendingTags")
-	public List<TagsEntity> getTrending() {
-		return tagsService.getTrending();
+	public List<TagsEntity> getTrending(@RequestParam int pageNumber,@RequestParam int pageSize) {
+		return tagsService.getTrending(pageNumber,pageSize);
 	}
 
 	@GetMapping("/findtags")

@@ -28,13 +28,13 @@ public class PostController {
 	}
 
 	@GetMapping("/trending")
-	public List<PostEntity> trending() {
-		return postService.trending();
+	public List<PostEntity> trending(Principal principal,@RequestParam int pageNum,@RequestParam int pageSize) {
+		return postService.trending(principal.getName(),pageNum,pageSize);
 	}
 
 	@GetMapping("/postbyuser/{userid}")
-	public List<PostEntity> postByUser(@PathVariable("userid") int userId) {
-		return postService.postByUser(userId);
+	public List<PostEntity> postByUser(@PathVariable("userid") int userId, @RequestParam String email) {
+		return postService.postByUser(userId, email);
 	}
 
 	@GetMapping("/region")
@@ -60,10 +60,10 @@ public class PostController {
 	}
 
 	@GetMapping("/feed")
-	public List<PostEntity> getFeed(Principal principal) {
+	public List<PostEntity> getFeed(Principal principal,@RequestParam int pageNum,@RequestParam int pageSize) {
 		if (principal == null)
 			return null;
-		return postService.feed(principal.getName());
+		return postService.feed(principal.getName(),pageNum,pageSize);
 	}
 
 	@PostMapping("/saved/{postid}")
@@ -85,5 +85,10 @@ public class PostController {
 		if (principal == null)
 			return null;
 		return postService.savedPosts(principal.getName());
+	}
+
+	@GetMapping("/{postId}")
+	public PostEntity getPostById(@PathVariable int postId) {
+		return postService.getPostById(postId);
 	}
 }

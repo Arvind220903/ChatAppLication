@@ -17,6 +17,7 @@ public class TagsEntity {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Integer tagId;
+	@jakarta.persistence.Column(unique = true)
 	private String tags;
 	@ManyToMany
 	private List<PostEntity> posts;

@@ -10,6 +10,6 @@ import com.example.demo.entity.PostEntity;
 public interface LikesService {
 	public String likePost(String email,int postId);
 	public int likeCount(int commentId);
-	public List<PostEntity> getByLikes(String username);
+	public List<PostEntity> getByLikes(String username,int pageNumber,int pageSize);
 	
 }

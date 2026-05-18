@@ -9,7 +9,8 @@ import com.example.demo.entity.UserEntity;
 
 @Service
 public interface MessageService {
-	public String sendMessage(String userEmail,int reciever,String msg);
+	public MessageEntity sendMessage(int userId,int reciever,String msg);
 	public List<MessageEntity> getMessages(String email,int userId);
 	public List<UserEntity> chatWith(String email);
+	public MessageEntity save(MessageEntity message);
 }

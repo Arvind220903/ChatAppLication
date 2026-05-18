@@ -1,7 +1,11 @@
 package com.example.demo.entity;
 
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -17,6 +21,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "Users")
@@ -73,7 +78,22 @@ public class UserEntity {
 	private Integer unseenNoti=0;
 	@ManyToMany
 	private List<PostEntity> seenPost;
-
+	@ManyToMany
+	private List<TagsEntity> likeTags;
+	@ManyToMany
+	private List<TagsEntity> commentedTags;
+	@ManyToMany
+	private List<TagsEntity> savedTags;
+	private String status;
+	private LocalDateTime lastmsg;
+	@OneToMany
+	List<MessageEntity> lastMessages;
+	@ElementCollection
+	private Map<Integer,Integer> unSeenMsg;
+	@Transient
+	private Integer unSeenMsgByUser;
+	@Transient
+	private Set<PostEntity> interest;
 	// Getters and Setters
 	public Integer getUserId() { return userId; }
 	public void setUserId(Integer userId) { this.userId = userId; }
@@ -125,6 +145,62 @@ public class UserEntity {
 	public void setSeenPost(List<PostEntity> seenPost) {
 		this.seenPost = seenPost;
 	}
+	public List<TagsEntity> getLikeTags() {
+		return likeTags;
+	}
+	public void setLikeTags(List<TagsEntity> likeTags) {
+		this.likeTags = likeTags;
+	}
+	public List<TagsEntity> getCommentedTags() {
+		return commentedTags;
+	}
+	public void setCommentedTags(List<TagsEntity> commentdTags) {
+		this.commentedTags = commentdTags;
+	}
+	public List<TagsEntity> getSavedTags() {
+		return savedTags;
+	}
+	public void setSavedTags(List<TagsEntity> savedTags) {
+		this.savedTags = savedTags;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public LocalDateTime getLastmsg() {
+		return lastmsg;
+	}
+	public void setLastmsg(LocalDateTime lastmsg) {
+		this.lastmsg = lastmsg;
+	}
+	public List<MessageEntity> getLastMessages() {
+		return lastMessages;
+	}
+	public void setLastMessages(List<MessageEntity> lastMessages) {
+		this.lastMessages = lastMessages;
+	}
+	public Map<Integer, Integer> getUnSeenMsg() {
+		return unSeenMsg;
+	}
+	public void setUnSeenMsg(Map<Integer, Integer> unSeenMsg) {
+		this.unSeenMsg = unSeenMsg;
+	}
+	public Integer getUnSeenMsgByUser() {
+		return unSeenMsgByUser;
+	}
+	public void setUnSeenMsgByUser(Integer unSeenMsgByUser) {
+		this.unSeenMsgByUser = unSeenMsgByUser;
+	}
+	public Set<PostEntity> getInterest() {
+		return interest;
+	}
+	public void setInterest(Set<PostEntity> interest) {
+		this.interest = interest;
+	}
+	
+	
 	
 	
 }

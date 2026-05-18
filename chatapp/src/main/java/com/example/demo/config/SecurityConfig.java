@@ -40,7 +40,7 @@ public class SecurityConfig {
 				.cors(customizer -> customizer.configurationSource(corsSource()))
 				.authorizeHttpRequests(request -> request
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-						.requestMatchers("/user/register", "/user/login").permitAll()
+						.requestMatchers("/user/register", "/user/login", "/ws-chat/**").permitAll()
 						.requestMatchers("/messages/**").authenticated()
 						.anyRequest().authenticated())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

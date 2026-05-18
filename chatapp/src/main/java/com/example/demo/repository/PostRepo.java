@@ -23,5 +23,10 @@ public interface PostRepo extends JpaRepository<PostEntity, Integer> {
 
 	List<PostEntity> findByCreatedAtAfterOrderByLikeCountDesc(LocalDateTime tenDaysAgo, Pageable pageable);
 	
-	List<PostEntity> findByLatitudeBetweenAndLongitudeBetween(double minLat, double maxLat, double minLng, double maxLng);
+	List<PostEntity> findByLatitudeBetweenAndLongitudeBetweenOrderByPostIdDesc(double minLat, double maxLat, double minLng, double maxLng);
+
+	List<PostEntity> findAllByOrderByPostIdDesc(Pageable pageable);
+
+	@org.springframework.data.jpa.repository.Query("SELECT p FROM PostEntity p WHERE p.postId IN (SELECT l.postId FROM Likes l WHERE l.userId = :userId) ORDER BY p.postId DESC")
+	List<PostEntity> findLikedPosts(@org.springframework.data.repository.query.Param("userId") Integer userId, Pageable pageable);
 }

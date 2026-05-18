@@ -12,7 +12,7 @@ public interface PostService {
 
 	public List<PostEntity> region(int postid, double lati, double longi);
 
-	public List<PostEntity> postByUser(int userId);
+	public List<PostEntity> postByUser(int userId, String currentEmail);
 
 	public String deletePost(int postid, int userId);
 
@@ -20,7 +20,7 @@ public interface PostService {
 
 	public List<PostEntity> legacy();
 
-	public List<PostEntity> feed(String email);
+	public List<PostEntity> feed(String email,int pageNumber,int pageSize);
 
 	public String saved(int postId, String email);
 
@@ -32,5 +32,6 @@ public interface PostService {
 
 	public PostEntity createPost(PostEntity post, String username);
 
-	public List<PostEntity> trending();
+	public List<PostEntity> trending(String email,int pageNumber,int pageSize);
+	public PostEntity getPostById(int postId);
 }

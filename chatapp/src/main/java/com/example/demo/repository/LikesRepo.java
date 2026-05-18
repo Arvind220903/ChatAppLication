@@ -2,6 +2,7 @@ package com.example.demo.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +14,7 @@ import com.example.demo.entity.PostEntity;
 
 @Repository
 public interface LikesRepo extends JpaRepository<Likes, Integer> {
-	List<Likes> findByUserId(int userId);
+	List<Likes> findByUserId(int userId, Pageable p);
 
 	Likes findByUserIdAndPostId(int userId, int postId);
 

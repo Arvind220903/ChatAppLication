@@ -36,6 +36,7 @@ public class PostEntity {
 	private Integer user;
 	private double latitude;
 	private double longitude;
+	private String locationName;
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 	private Integer likeCount = 0;
@@ -98,6 +99,12 @@ public class PostEntity {
 	}
 	public void setLongitude(double longitude) {
 		this.longitude = longitude;
+	}
+	public String getLocationName() {
+		return locationName;
+	}
+	public void setLocationName(String locationName) {
+		this.locationName = locationName;
 	}
 	public LocalDateTime getCreatedAt() {
 		return createdAt;

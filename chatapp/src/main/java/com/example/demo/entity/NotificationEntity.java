@@ -25,6 +25,7 @@ public class NotificationEntity {
 		private boolean seen=false;
 		private Integer postId;
 		private Integer sender;
+		private String followEmail;
 
 		public Integer getNotificationId() {
 			return notificationId;
@@ -82,6 +83,15 @@ public class NotificationEntity {
 		public void setPostId(Integer postId) {
 			this.postId = postId;
 		}
+
+		public String getFollowEmail() {
+			return followEmail;
+		}
+
+		public void setFollowEmail(String followEmail) {
+			this.followEmail = followEmail;
+		}
+		
 		
 		
 }

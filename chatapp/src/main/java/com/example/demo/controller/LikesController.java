@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.entity.PostEntity;
@@ -31,8 +32,8 @@ public class LikesController {
 	}
 
 	@GetMapping("/getlikeposts")
-	public List<PostEntity> getPostByLikes(Principal principal){
+	public List<PostEntity> getPostByLikes(Principal principal,@RequestParam int pageNumber,@RequestParam int pageSize){
 		if (principal == null) return null;
-		return likeService.getByLikes(principal.getName());
+		return likeService.getByLikes(principal.getName(),pageNumber,pageSize);
 	}
 }

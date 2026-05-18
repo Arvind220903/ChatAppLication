@@ -12,6 +12,6 @@ public interface TagsService {
 	public List<TagsEntity> tags(String t);
 	
 	public void refresh();
-	public List<TagsEntity> getTrending();
+	public List<TagsEntity> getTrending(int pageNumber,int pageSize);
 	public List<PostEntity> getPostsByTag(String tag);
 }
