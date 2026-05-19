@@ -31,25 +31,34 @@ public class TagsServiceImpl implements TagsService {
 	@Override
 	@Transactional
 	public void refresh() {
-		List<TagsEntity> tag = tagRepo.findAll();
-		for (TagsEntity t : tag) {
-			boolean flag = true;
-			List<PostEntity> q = t.getRecentPosts();
-			while (q.size() > 0 && flag) {
+		int pageSize = 100;
+		int pageNumber = 0;
+		Page<TagsEntity> page;
+		
+		do {
+			page = tagRepo.findAll(PageRequest.of(pageNumber, pageSize));
+			for (TagsEntity t : page.getContent()) {
+				boolean flag = true;
 				LocalDateTime curr = LocalDateTime.now();
-				PostEntity post = q.get(0);
-				LocalDateTime postTime = post.getCreatedAt();
-				long daydiff = ChronoUnit.HOURS.between(postTime, curr);
-				if (daydiff >= 24) {
-					q.remove(0);
-				} else {
-					flag = false;
+				List<PostEntity> q = t.getRecentPosts();
+				if (q != null) {
+					while (q.size() > 0 && flag) {
+						PostEntity post = q.get(0);
+						LocalDateTime postTime = post.getCreatedAt();
+						long daydiff = ChronoUnit.HOURS.between(postTime, curr);
+						if (daydiff >= 24) {
+							q.remove(0);
+						} else {
+							flag = false;
+						}
+					}
+					t.setRecentPosts(q);
+					t.setRecentUse(q.size());
+					tagRepo.save(t);
 				}
 			}
-			t.setRecentPosts(q);
-			t.setRecentUse(q.size());
-			tagRepo.save(t);
-		}
+			pageNumber++;
+		} while (page.hasNext());
 	}
 
 	@Override

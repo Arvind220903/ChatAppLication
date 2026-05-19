@@ -40,7 +40,7 @@ public class SecurityConfig {
 				.cors(customizer -> customizer.configurationSource(corsSource()))
 				.authorizeHttpRequests(request -> request
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-						.requestMatchers("/user/register", "/user/login", "/ws-chat/**").permitAll()
+						.requestMatchers("/user/register", "/user/login", "/ws-chat/**", "/v3/api-docs", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
 						.requestMatchers("/messages/**").authenticated()
 						.anyRequest().authenticated())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -74,7 +74,8 @@ public class SecurityConfig {
 	@Bean
 	public AuthenticationProvider authProvider() {
 
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider(myUd);
+		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+		provider.setUserDetailsService(myUd);
 		provider.setPasswordEncoder(bcrypt());
 		return provider;
 	}

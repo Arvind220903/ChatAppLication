@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -63,12 +65,12 @@ public class LikesServiceImpl implements LikesService {
 			
 			List<String> tags=post.getTags();
 			
-			List<TagsEntity> likeTags=user1.getLikeTags();
-			if(likeTags==null)likeTags=new ArrayList<>();
-			for(String s : tags) {
-				TagsEntity t1=tagsRepo.findFirstByTags(s);
-				if(t1!=null)likeTags.add(t1);
+			Set<TagsEntity> likeTags=user1.getLikeTags();
+			if(likeTags==null)likeTags=new HashSet<>();
+			if (tags != null && !tags.isEmpty()) {
+				likeTags.addAll(tagsRepo.findBatchByTags(tags));
 			}
+			
 			user1.setLikeTags(likeTags);
 			userRepo.save(user1);
 			
@@ -105,12 +107,30 @@ public class LikesServiceImpl implements LikesService {
 
 		List<PostEntity> ans = postRepo.findLikedPosts(user.getUserId(), p);
 
-		List<PostEntity> saved=user.getSaved();
+		Set<PostEntity> saved=user.getSaved();
 		Set<PostEntity> savedPosts=new HashSet<>();
 		if(saved!=null)savedPosts.addAll(saved);
+		
+		Set<Integer> userIds = new HashSet<>();
+		if (ans != null) {
+			for (PostEntity post : ans) {
+				if (post != null && post.getUser() != null) {
+					userIds.add(post.getUser());
+				}
+			}
+		}
+		List<UserEntity> users = userRepo.findAllById(userIds);
+		Map<Integer, String> userMap = new HashMap<>();
+		for (UserEntity u : users) {
+			userMap.put(u.getUserId(), u.getUserName());
+		}
+
 		if (ans != null) {
 			for (PostEntity post : ans) {
 				if (post != null) {
+					if (post.getUserName() == null) {
+						post.setUserName(userMap.getOrDefault(post.getUser(), "Unknown"));
+					}
 					post.setLikedByUser(true);
 					if(savedPosts.contains(post))post.setSaveByuser(true);
 				}

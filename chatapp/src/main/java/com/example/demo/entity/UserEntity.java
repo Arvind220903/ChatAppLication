@@ -39,10 +39,10 @@ public class UserEntity {
 	private Date createdAt;
 
 	@ElementCollection
-	private List<Integer> follower;
+	private Set<Integer> follower;
 
 	@ElementCollection
-	private List<Integer> following;
+	private Set<Integer> following;
 
 	@OneToMany
 	@JsonIgnore
@@ -62,7 +62,7 @@ public class UserEntity {
 
 	@ManyToMany
 	@JsonIgnore
-	private List<PostEntity> saved;
+	private Set<PostEntity> saved;
 
 	private Integer postCount;
 	private Integer followerCount;
@@ -74,16 +74,20 @@ public class UserEntity {
 
 	@ManyToMany
 	@JsonIgnore
-	private List<UserEntity> chatWith;
+	private Set<UserEntity> chatWith;
 	private Integer unseenNoti=0;
 	@ManyToMany
-	private List<PostEntity> seenPost;
+	@JsonIgnore
+	private Set<PostEntity> seenPost;
 	@ManyToMany
-	private List<TagsEntity> likeTags;
+	@JsonIgnore
+	private Set<TagsEntity> likeTags;
 	@ManyToMany
-	private List<TagsEntity> commentedTags;
+	@JsonIgnore
+	private Set<TagsEntity> commentedTags;
 	@ManyToMany
-	private List<TagsEntity> savedTags;
+	@JsonIgnore
+	private Set<TagsEntity> savedTags;
 	private String status;
 	private LocalDateTime lastmsg;
 	@OneToMany
@@ -109,18 +113,18 @@ public class UserEntity {
 	public void setUserProfile(String userProfile) { this.userProfile = userProfile; }
 	public Date getCreatedAt() { return createdAt; }
 	public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
-	public List<Integer> getFollower() { return follower; }
-	public void setFollower(List<Integer> follower) { this.follower = follower; }
-	public List<Integer> getFollowing() { return following; }
-	public void setFollowing(List<Integer> following) { this.following = following; }
+	public Set<Integer> getFollower() { return follower; }
+	public void setFollower(Set<Integer> follower) { this.follower = follower; }
+	public Set<Integer> getFollowing() { return following; }
+	public void setFollowing(Set<Integer> following) { this.following = following; }
 	public List<PostEntity> getPosts() { return posts; }
 	public void setPosts(List<PostEntity> posts) { this.posts = posts; }
 	public List<CommentEntity> getComment() { return comment; }
 	public void setComment(List<CommentEntity> comment) { this.comment = comment; }
 	public List<Likes> getLikes() { return likes; }
 	public void setLikes(List<Likes> likes) { this.likes = likes; }
-	public List<PostEntity> getSaved() { return saved; }
-	public void setSaved(List<PostEntity> saved) { this.saved = saved; }
+	public Set<PostEntity> getSaved() { return saved; }
+	public void setSaved(Set<PostEntity> saved) { this.saved = saved; }
 	public List<NotificationEntity> getNotifications() { return notifications; }
 	public void setNotifications(List<NotificationEntity> notifications) { this.notifications = notifications; }
 	public Integer getPostCount() { return postCount; }
@@ -131,36 +135,36 @@ public class UserEntity {
 	public void setFollowingCount(Integer followingCount) { this.followingCount = followingCount; }
 	public List<MessageEntity> getMessages() { return messages; }
 	public void setMessages(List<MessageEntity> messages) { this.messages = messages; }
-	public List<UserEntity> getChatWith() { return chatWith; }
-	public void setChatWith(List<UserEntity> chatWith) { this.chatWith = chatWith; }
+	public Set<UserEntity> getChatWith() { return chatWith; }
+	public void setChatWith(Set<UserEntity> chatWith) { this.chatWith = chatWith; }
 	public Integer getUnseenNoti() {
 		return unseenNoti;
 	}
 	public void setUnseenNoti(Integer unseenNoti) {
 		this.unseenNoti = unseenNoti;
 	}
-	public List<PostEntity> getSeenPost() {
+	public Set<PostEntity> getSeenPost() {
 		return seenPost;
 	}
-	public void setSeenPost(List<PostEntity> seenPost) {
+	public void setSeenPost(Set<PostEntity> seenPost) {
 		this.seenPost = seenPost;
 	}
-	public List<TagsEntity> getLikeTags() {
+	public Set<TagsEntity> getLikeTags() {
 		return likeTags;
 	}
-	public void setLikeTags(List<TagsEntity> likeTags) {
+	public void setLikeTags(Set<TagsEntity> likeTags) {
 		this.likeTags = likeTags;
 	}
-	public List<TagsEntity> getCommentedTags() {
+	public Set<TagsEntity> getCommentedTags() {
 		return commentedTags;
 	}
-	public void setCommentedTags(List<TagsEntity> commentdTags) {
+	public void setCommentedTags(Set<TagsEntity> commentdTags) {
 		this.commentedTags = commentdTags;
 	}
-	public List<TagsEntity> getSavedTags() {
+	public Set<TagsEntity> getSavedTags() {
 		return savedTags;
 	}
-	public void setSavedTags(List<TagsEntity> savedTags) {
+	public void setSavedTags(Set<TagsEntity> savedTags) {
 		this.savedTags = savedTags;
 	}
 	public String getStatus() {

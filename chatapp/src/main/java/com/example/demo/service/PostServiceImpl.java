@@ -3,8 +3,10 @@ package com.example.demo.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,38 +41,70 @@ public class PostServiceImpl implements PostService {
 		}
 
 		Pageable topTwenty = PageRequest.of(0, 20);
-		return postRepo.findByUserInOrderByPostIdDesc(user.getFollowing(), topTwenty);
+		List<PostEntity> posts = postRepo.findByUserInOrderByPostIdDesc(new ArrayList<>(user.getFollowing()), topTwenty);
+
+		Set<Integer> userIds = new HashSet<>();
+		for (PostEntity p : posts) {
+			if (p.getUser() != null) {
+				userIds.add(p.getUser());
+			}
+		}
+		List<UserEntity> users = userRepo.findAllById(userIds);
+		Map<Integer, String> userMap = new HashMap<>();
+		for (UserEntity u : users) {
+			userMap.put(u.getUserId(), u.getUserName());
+		}
+
+		posts.forEach(p -> {
+			if (p.getUserName() == null) {
+				p.setUserName(userMap.getOrDefault(p.getUser(), "Unknown"));
+			}
+		});
+
+		return posts;
 	}
 
 	@Override
 	public List<PostEntity> trending(String email, int pageNumber, int pageSize) {
 		UserEntity user = userRepo.findByUserEmail(email);
 		LocalDateTime tenDaysAgo = LocalDateTime.now().minusDays(10);
-		
+
 		Set<Integer> likedPost = new HashSet<>();
 		Set<Integer> savedPost = new HashSet<>();
-		
+
 		if (user != null) {
 			if (user.getLikes() != null) {
-				for (Likes l : user.getLikes()) likedPost.add(l.getPostId());
+				for (Likes l : user.getLikes())
+					likedPost.add(l.getPostId());
 			}
 			if (user.getSaved() != null) {
-				for (PostEntity p : user.getSaved()) savedPost.add(p.getPostId());
+				for (PostEntity p : user.getSaved())
+					savedPost.add(p.getPostId());
 			}
 		}
 
 		Pageable topFifteen = PageRequest.of(pageNumber, pageSize);
 		List<PostEntity> posts = postRepo.findByCreatedAtAfterOrderByLikeCountDesc(tenDaysAgo, topFifteen);
-		
+
+		Set<Integer> userIds = new HashSet<>();
+		for (PostEntity pe : posts)
+			userIds.add(pe.getUser());
+		Set<UserEntity> users = new HashSet<>();
+		users.addAll(userRepo.findAllById(userIds));
+		Map<Integer, String> map = new HashMap<>();
+		for (UserEntity u : users)
+			map.put(u.getUserId(), u.getUserName());
+
 		posts.forEach(p -> {
 			if (p.getUserName() == null) {
-				UserEntity u = userRepo.findByUserId(p.getUser());
-				if (u != null)
-					p.setUserName(u.getUserName());
+				
+					p.setUserName(map.get(p.getUser()));
 			}
-			if(likedPost.contains(p.getPostId()))p.setLikedByUser(true);
-			if(savedPost.contains(p.getPostId()))p.setSaveByuser(true);
-			
+			if (likedPost.contains(p.getPostId()))
+				p.setLikedByUser(true);
+			if (savedPost.contains(p.getPostId()))
+				p.setSaveByuser(true);
+
 		});
 		return posts;
 	}
@@ -79,25 +113,30 @@ public class PostServiceImpl implements PostService {
 	public List<PostEntity> region(int postid, double lati, double longi) {
 		System.out.println("Searching region for Lat: " + lati + ", Lng: " + longi);
 
-		double radiusKm = 60.0; 
+		double radiusKm = 60.0;
 		double latDelta = radiusKm / 111.0;
-		
+
 		double lonDelta = radiusKm / (111.0 * Math.cos(Math.toRadians(lati)));
-	
+
 		List<PostEntity> posts = postRepo.findByLatitudeBetweenAndLongitudeBetweenOrderByPostIdDesc(
 				lati - latDelta, lati + latDelta,
 				longi - lonDelta, longi + lonDelta);
 
-		
-		
-		
+		Set<Integer> userIds = new HashSet<>();
+		for (PostEntity pe : posts)
+			userIds.add(pe.getUser());
+		Set<UserEntity> users = new HashSet<>();
+		users.addAll(userRepo.findAllById(userIds));
+		Map<Integer, String> map = new HashMap<>();
+		for (UserEntity u : users)
+			map.put(u.getUserId(), u.getUserName());
 		posts.forEach(post -> {
 			double dist = haversine(lati, longi, post.getLatitude(), post.getLongitude());
 			post.setDistance(dist);
-			
+
 			if (post.getUserName() == null) {
-				UserEntity u = userRepo.findByUserId(post.getUser());
-				if (u != null) post.setUserName(u.getUserName());
+
+				post.setUserName(map.get(post.getUser()));
 			}
 		});
 
@@ -124,23 +163,26 @@ public class PostServiceImpl implements PostService {
 
 		if (profileUser != null && profileUser.getPosts() != null) {
 			List<PostEntity> posts = new ArrayList<>(profileUser.getPosts());
-			
+
 			// Backfill Liked/Saved status
 			Set<Integer> likedPostIds = new HashSet<>();
 			Set<Integer> savedPostIds = new HashSet<>();
 			if (currentUser != null) {
 				if (currentUser.getLikes() != null) {
-					for (Likes l : currentUser.getLikes()) likedPostIds.add(l.getPostId());
+					for (Likes l : currentUser.getLikes())
+						likedPostIds.add(l.getPostId());
 				}
 				if (currentUser.getSaved() != null) {
-					for (PostEntity p : currentUser.getSaved()) savedPostIds.add(p.getPostId());
+					for (PostEntity p : currentUser.getSaved())
+						savedPostIds.add(p.getPostId());
 				}
 			}
 
 			for (PostEntity p : posts) {
 				p.setLikedByUser(likedPostIds.contains(p.getPostId()));
 				p.setSaveByuser(savedPostIds.contains(p.getPostId()));
-				if (p.getUserName() == null) p.setUserName(profileUser.getUserName());
+				if (p.getUserName() == null)
+					p.setUserName(profileUser.getUserName());
 			}
 
 			Collections.sort(posts, (a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
@@ -187,7 +229,7 @@ public class PostServiceImpl implements PostService {
 				tagsRepo.save(tags);
 			}
 		}
-		List<PostEntity> posts=new ArrayList<>();
+		List<PostEntity> posts = new ArrayList<>();
 		user.getPosts().add(savedPost);
 		userRepo.save(user);
 
@@ -228,7 +270,8 @@ public class PostServiceImpl implements PostService {
 	@Transactional
 	public List<PostEntity> feed(String email, int pageNumber, int pageSize) {
 		UserEntity user = userRepo.findByUserEmail(email);
-		if (user == null) return new ArrayList<>();
+		if (user == null)
+			return new ArrayList<>();
 		int userId = user.getUserId();
 
 		Set<PostEntity> pool = new java.util.LinkedHashSet<>();
@@ -241,18 +284,19 @@ public class PostServiceImpl implements PostService {
 			}
 		}
 
-	
 		addInterestPosts(user, pool, userId);
 
-		
-		List<PostEntity> trending = trending(user.getUserEmail(),0, 50);
-		for (PostEntity p : trending) if (p.getUser() != userId) pool.add(p);
+		List<PostEntity> trending = trending(user.getUserEmail(), 0, 50);
+		for (PostEntity p : trending)
+			if (p.getUser() != userId)
+				pool.add(p);
 
 		if (pool.size() < (pageNumber + 1) * pageSize) {
 			Pageable fallback = PageRequest.of(0, 50);
 			List<PostEntity> allRecent = postRepo.findAllByOrderByPostIdDesc(fallback);
 			for (PostEntity p : allRecent) {
-				if (p.getUser() != userId) pool.add(p);
+				if (p.getUser() != userId)
+					pool.add(p);
 			}
 		}
 
@@ -260,12 +304,13 @@ public class PostServiceImpl implements PostService {
 		int start = pageNumber * pageSize;
 		int end = Math.min(start + pageSize, allPosts.size());
 
-		if (start >= allPosts.size()) return new ArrayList<>();
+		if (start >= allPosts.size())
+			return new ArrayList<>();
 		List<PostEntity> result = allPosts.subList(start, end);
 
-		
 		for (PostEntity p : result) {
-			if (following.contains(p)) user.getSeenPost().add(p);
+			if (following.contains(p))
+				user.getSeenPost().add(p);
 		}
 		userRepo.save(user);
 
@@ -282,12 +327,21 @@ public class PostServiceImpl implements PostService {
 				savedPostIds.add(p.getPostId());
 			}
 		}
+		
+		Set<Integer> userIds = new HashSet<>();
+		for (PostEntity pe : result)
+			userIds.add(pe.getUser());
+		Set<UserEntity> users = new HashSet<>();
+		users.addAll(userRepo.findAllById(userIds));
+		Map<Integer, String> map = new HashMap<>();
+		for (UserEntity u : users)
+			map.put(u.getUserId(), u.getUserName());
 
 		for (PostEntity p : result) {
 			// Set Username
 			if (p.getUserName() == null) {
-				UserEntity u = userRepo.findByUserId(p.getUser());
-				if (u != null) p.setUserName(u.getUserName());
+				
+					p.setUserName(map.get(p.getUser()));
 			}
 			// Set Liked status
 			p.setLikedByUser(likedPostIds.contains(p.getPostId()));
@@ -300,36 +354,52 @@ public class PostServiceImpl implements PostService {
 
 	private void addInterestPosts(UserEntity user, Set<PostEntity> feedSet, int userId) {
 		Set<TagsEntity> interests = new HashSet<>();
-		if (user.getLikeTags() != null) interests.addAll(user.getLikeTags());
-		if (user.getCommentedTags() != null) interests.addAll(user.getCommentedTags());
+		if (user.getLikeTags() != null)
+			interests.addAll(user.getLikeTags());
+		if (user.getCommentedTags() != null)
+			interests.addAll(user.getCommentedTags());
 		for (TagsEntity tag : interests) {
 			List<PostEntity> tagPosts = tag.getPosts();
 			if (tagPosts != null) {
-				for (PostEntity p : tagPosts) if (p.getUser() != userId) feedSet.add(p);
+				for (PostEntity p : tagPosts)
+					if (p.getUser() != userId)
+						feedSet.add(p);
 			}
 		}
 	}
 
 	public List<PostEntity> search(String keyword, String email) {
 		UserEntity user = userRepo.findByUserEmail(email);
-		List<PostEntity> results = postRepo.findByTitleContainingIgnoreCaseOrUserNameContainingIgnoreCase(keyword, keyword);
-		
+		List<PostEntity> results = postRepo.findByTitleContainingIgnoreCaseOrUserNameContainingIgnoreCase(keyword,
+				keyword);
+
 		// Backfill data
 		Set<Integer> likedPostIds = new HashSet<>();
 		Set<Integer> savedPostIds = new HashSet<>();
 		if (user != null) {
 			if (user.getLikes() != null) {
-				for (Likes l : user.getLikes()) likedPostIds.add(l.getPostId());
+				for (Likes l : user.getLikes())
+					likedPostIds.add(l.getPostId());
 			}
 			if (user.getSaved() != null) {
-				for (PostEntity p : user.getSaved()) savedPostIds.add(p.getPostId());
+				for (PostEntity p : user.getSaved())
+					savedPostIds.add(p.getPostId());
 			}
 		}
 
+		Set<Integer> userIds = new HashSet<>();
+		for (PostEntity pe : results)
+			userIds.add(pe.getUser());
+		Set<UserEntity> users = new HashSet<>();
+		users.addAll(userRepo.findAllById(userIds));
+		Map<Integer, String> map = new HashMap<>();
+		for (UserEntity u : users)
+			map.put(u.getUserId(), u.getUserName());
+
 		results.forEach(p -> {
 			if (p.getUserName() == null) {
-				UserEntity u = userRepo.findByUserId(p.getUser());
-				if (u != null) p.setUserName(u.getUserName());
+				
+					p.setUserName(map.get(p.getUser()));
 			}
 			p.setLikedByUser(likedPostIds.contains(p.getPostId()));
 			p.setSaveByuser(savedPostIds.contains(p.getPostId()));
@@ -341,14 +411,19 @@ public class PostServiceImpl implements PostService {
 	public String saved(int postId, String email) {
 		PostEntity post = postRepo.findByPostId(postId);
 		UserEntity user = userRepo.findByUserEmail(email);
-		if (user.getSaved().size() > 0 && user.getSaved().contains(post)) {
-			user.getSaved().remove(post);
+		Set<PostEntity> saved = user.getSaved();
+		if (saved == null) {
+			saved = new HashSet<>();
+			user.setSaved(saved);
+		}
+		if (saved.contains(post)) {
+			saved.remove(post);
 			userRepo.save(user);
 			post.setSaveByuser(false);
 			postRepo.save(post);
 			return "unsaved";
 		} else {
-			user.getSaved().add(post);
+			saved.add(post);
 			userRepo.save(user);
 			post.setSaveByuser(true);
 			postRepo.save(post);
@@ -365,9 +440,10 @@ public class PostServiceImpl implements PostService {
 	@Override
 	public List<PostEntity> savedPosts(String username) {
 		UserEntity user = userRepo.findByUserEmail(username);
-		List<PostEntity> save = user.getSaved();
+		Set<PostEntity> save = user.getSaved();
+		if (save == null) return new ArrayList<>();
 
-		return save;
+		return new ArrayList<>(save);
 	}
 
 	@Override
